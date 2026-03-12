@@ -489,6 +489,255 @@ export const CLINICAL_CASES: ClinicalCase[] = [
     },
   },
   {
+    id: "medint-2-scompenso-cardiaco-cronico-riacutizzato",
+    specialty: "Medicina Interna",
+    patientName: "Angelo",
+    patientAge: 82,
+    patientSex: "M",
+    initialMessage:
+      "Dottore, da qualche settimana mi si gonfiano sempre di più le gambe e adesso faccio fatica a fare pochi passi senza fermarmi per prendere fiato. La notte devo mettere due o tre cuscini perché sdraiato mi manca l’aria.",
+    patientProfile:
+      "Uomo di 82 anni, anamnesi positiva per cardiopatia ischemica cronica con precedente infarto miocardico, ipertensione arteriosa di lunga data e fibrillazione atriale permanente. Vive con la moglie, autonomia parzialmente ridotta. In terapia cronica con diuretico, ACE-inibitore, beta-bloccante e anticoagulante orale, ma riferisce aderenza irregolare alla terapia negli ultimi mesi. Da circa 3–4 settimane progressivo peggioramento della dispnea da sforzo, con ridotta tolleranza allo sforzo (da NYHA II a NYHA III), marcato aumento dell’edema declive a caviglie e gambe soprattutto la sera, lieve aumento di peso riferito. Negli ultimi giorni comparsa di ortopnea e parossismi di dispnea notturna che lo costringono a sedersi sul letto. Non dolore toracico acuto, non febbre, non tosse produttiva significativa. Non recente infezione respiratoria nota.",
+    physicalExam:
+      "Parametri vitali: PA 125/75 mmHg, FC 92 bpm irregolare, FR 20 atti/min, SpO2 95% in aria ambiente, temperatura 36,6°C. Stato generale: paziente vigile, orientato, in lieve-moderato affanno a riposo ma stabile, preferisce posizione semiseduta. Torace: rantoli crepitanti fini bibasali, murmure vescicolare conservato ai campi superiori, non sibili diffusi. Apparato cardiovascolare: toni cardiaci ovattati, ritmo assolutamente aritmico da fibrillazione atriale, possibile soffio olosistolico apicale irradiato all’ascella (insufficienza mitralica funzionale); giugulari moderatamente turgide a 45°. Addome: lievemente globoso, fegato palpabile 2–3 cm sotto il margine costale destro, modestamente dolorabile (stasi epatica), non ascite tesa. Arti inferiori: edemi declivi bilaterali con impronta fino alle ginocchia, cute fredda e lucida alle gambe. Non segni clinici di trombosi venosa profonda.",
+    truth: {
+      correctDiagnosis:
+        "Scompenso cardiaco cronico sistolico in riacutizzazione congestizia in paziente anziano con cardiopatia ischemica e fibrillazione atriale",
+      mandatoryQuestions: [
+        "durata e progressione della dispnea (da sforzo, a riposo, ortopnea, PND)",
+        "aderenza alla terapia cronica per lo scompenso cardiaco (diuretici, ACE-inibitori, beta-bloccanti, antagonisti recettoriali)",
+        "monitoraggio del peso corporeo e variazioni recenti",
+        "presenza di ricoveri precedenti per scompenso cardiaco",
+        "presenza di dolore toracico recente o palpitazioni marcate",
+        "abitudine alcolica e uso di FANS o altri farmaci che possono peggiorare lo scompenso",
+        "presenza di sintomi suggestivi per infezione respiratoria o anemia (tosse produttiva, febbre, astenia marcata recente)",
+      ],
+      requiredExams: [
+        "Elettrocardiogramma (ECG) a 12 derivazioni",
+        "RX Torace in due proiezioni per valutare congestione polmonare e cardiomegalia",
+        "Emocromo, elettroliti, funzionalità renale ed epatica",
+        "BNP/NT-proBNP",
+        "Ecocardiogramma transtoracico per valutare funzione ventricolare e valvolare",
+        "Esame urine completo (ricerca proteinuria, valutazione stato volumetrico)",
+      ],
+      unnecessaryExams: [
+        "TC Torace in assenza di sospetto di embolia polmonare o altra patologia strutturale",
+        "Angio-TC aorta toraco-addominale senza segni specifici di sindrome aortica acuta",
+        "RM cardiaca di routine in fase di prima valutazione ambulatoriale",
+      ],
+      legalReference:
+        "Linee guida ESC per lo scompenso cardiaco cronico: importanza della valutazione ambulatoriale programmata, dell’ottimizzazione della terapia e del monitoraggio dei segni di congestione; la mancata identificazione di una riacutizzazione significativa con necessità di adeguamento terapeutico può configurare profili di responsabilità per gestione inappropriata.",
+    },
+  },
+  {
+    id: "endo-2-diabete-tipo2-nuova-insorgenza",
+    specialty: "Endocrinologia",
+    patientName: "Silvia",
+    patientAge: 52,
+    patientSex: "F",
+    initialMessage:
+      "Dottore, da qualche mese ho sempre sete, bevo continuamente e vado in bagno a urinare di frequente, anche di notte. Ho perso diversi chili senza fare diete particolari.",
+    patientProfile:
+      "Donna di 52 anni, lieve sovrappeso (BMI 28), familiarità per diabete mellito di tipo 2 (madre e fratello), ipertensione arteriosa trattata. Nessuna diagnosi pregressa di diabete, non terapia ipoglicemizzante in atto. Riferisce da 3–4 mesi polidipsia marcata con assunzione di grandi quantità di acqua, poliuria diurna e notturna (nicturia), calo ponderale di circa 6–7 kg in pochi mesi non intenzionale, aumento della fame iniziale poi senso di facile affaticabilità. Lamenta secchezza delle fauci, lieve prurito cutaneo, visione sfocata saltuaria. Non episodi di nausea o vomito, non dolore addominale acuto, non alito chetonico evidente. Non infezioni urinarie o vaginali ricorrenti note, ma lieve prurito vulvare negli ultimi tempi. Vita sedentaria, alimentazione ricca di carboidrati semplici.",
+    physicalExam:
+      "Parametri vitali: PA 135/80 mmHg, FC 82 bpm, FR 16 atti/min, SpO2 98% in aria ambiente, temperatura 36,7°C. Stato generale: paziente vigile, collaborante, in condizioni emodinamicamente stabili, modesto sovrappeso con lieve adiposità addominale centrale. Cute e mucose: mucose orali moderatamente secche, cute lievemente secca con occasionali escoriazioni da grattamento a livello degli arti inferiori. Apparato cardiovascolare: toni cardiaci validi, ritmici, senza soffi evidenti. Torace: murmure vescicolare conservato bilateralmente, non rantoli. Addome: trattabile, non dolorabile, non organomegalie palpabili marcate. Arti inferiori: polsi periferici presenti e simmetrici, assenza di edemi, sensibilità conservata ai test grossolani; non segni di piede diabetico.",
+    truth: {
+      correctDiagnosis:
+        "Sospetto diabete mellito di tipo 2 di nuova insorgenza con sintomi classici (poliuria, polidipsia, calo ponderale)",
+      mandatoryQuestions: [
+        "presenza di poliuria, polidipsia, polifagia e calo ponderale, con indicazione temporale",
+        "familiarità per diabete mellito o malattie metaboliche",
+        "abitudini alimentari (introito di zuccheri semplici, bevande zuccherate, alcol)",
+        "livello di attività fisica e stile di vita",
+        "presenza di infezioni urinarie, genitali o cutanee ricorrenti",
+        "uso di farmaci iperglicemizzanti (corticosteroidi, diuretici tiazidici, antipsicotici)",
+        "eventuali sintomi suggestivi di complicanze già presenti (formicolii ai piedi, riduzione della vista)",
+      ],
+      requiredExams: [
+        "Glicemia a digiuno ripetuta",
+        "Emoglobina glicata (HbA1c)",
+        "Curva da carico orale di glucosio (OGTT) se indicata",
+        "Esame urine completo con ricerca di glicosuria e chetonuria",
+        "Profilo lipidico completo",
+        "Funzionalità renale (creatininemia, eGFR) e elettroliti",
+        "Microalbuminuria urinaria (rapporto albumina/creatinina)",
+      ],
+      unnecessaryExams: [
+        "TC Addome o RM Addome senza sospetto di complicanze acute",
+        "Dosaggi ormonali complessi non mirati in prima battuta",
+        "Esami radiologici non correlati (RX Torace, RX Colonna) in assenza di altri sintomi",
+      ],
+      legalReference:
+        "Linee guida per la diagnosi e il follow-up del diabete mellito di tipo 2: la corretta conferma diagnostica e la valutazione iniziale delle complicanze micro- e macrovascolari sono essenziali per una presa in carico adeguata; omissioni significative possono comportare ritardi terapeutici con possibile responsabilità professionale.",
+    },
+  },
+  {
+    id: "infettivo-1-polmonite-comunitaria-adulto",
+    specialty: "Malattie Infettive / Pneumologia",
+    patientName: "Roberto",
+    patientAge: 60,
+    patientSex: "M",
+    initialMessage:
+      "Dottore, da cinque giorni ho febbre alta, tosse con catarro giallo-verde e quando respiro profondamente ho un dolore forte al fianco destro.",
+    patientProfile:
+      "Uomo di 60 anni, ex fumatore (20 pacchetti/anno), iperteso in terapia, nessuna broncopneumopatia cronica ostruttiva diagnosticata. Da 5 giorni febbre fino a 39°C, brividi, tosse produttiva con espettorato giallo-verdastro, dolore toracico puntorio in emitorace destro accentuato dall’inspirazione profonda e dalla tosse, dispnea moderata agli sforzi abituali (fare le scale, camminare a passo sostenuto). Non recente ricovero ospedaliero, nessun uso recente di antibiotici. Non viaggi internazionali nelle ultime settimane. Nessun contatto noto con pazienti tubercolotici. Non perdita di coscienza o emoftoe, non sintomi gastrointestinali rilevanti.",
+    physicalExam:
+      "Parametri vitali: PA 130/80 mmHg, FC 98 bpm, FR 22 atti/min, SpO2 94% in aria ambiente, temperatura 38,5°C. Stato generale: paziente vigile, leggermente sofferente, in moderato distress respiratorio da sforzo ma emodinamicamente stabile. Torace: all’auscultazione murmure vescicolare ridotto alla base destra con crepitii inspiratori fini e possibile sfregamento pleurico, normale a sinistra; dolore alla palpazione e alla compressione toracica in sede basale destra. Apparato cardiovascolare: toni cardiaci ritmici, tachicardici ma senza soffi patologici. Addome: trattabile, non dolente, peristalsi presente. Estremità calde, non edemi declivi significativi.",
+    truth: {
+      correctDiagnosis:
+        "Polmonite acquisita in comunità (CAP) lobare destra in adulto emodinamicamente stabile",
+      mandatoryQuestions: [
+        "durata della febbre, tosse e sintomi respiratori",
+        "caratteristiche dell’espettorato (colore, quantità, eventuale sangue)",
+        "presenza di dolore toracico pleuritico e gravità della dispnea",
+        "patologie respiratorie pregresse (BPCO, asma, bronchiectasie)",
+        "eventuali ricoveri recenti o terapie antibiotiche negli ultimi 3 mesi",
+        "abitudine al fumo e stato vaccinale per pneumococco e influenza",
+        "eventuali condizioni di immunodeficienza o terapie immunosoppressive",
+      ],
+      requiredExams: [
+        "Emocromo con formula, PCR e/o VES",
+        "RX Torace in due proiezioni",
+        "Emogasanalisi arteriosa se dispnea rilevante o saturazione borderline",
+        "Esame urine completo ed eventualmente antigeni urinari per pneumococco/legionella",
+        "Emocolture in caso di febbre elevata o brividi scuotenti",
+        "Tampone respiratorio o naso-faringeo per virus respiratori secondo contesto epidemiologico",
+      ],
+      unnecessaryExams: [
+        "TC Torace ad alta risoluzione in prima battuta in quadro tipico non complicato",
+        "D-Dimero routinario in assenza di sospetto clinico di embolia polmonare",
+        "RM Torace o TC Total Body non mirate",
+      ],
+      legalReference:
+        "Raccomandazioni internazionali per la gestione della polmonite acquisita in comunità (CAP) in setting non intensivo: la scelta corretta degli esami diagnostici e la valutazione di gravità (es. score CURB-65) sono fondamentali per definire sede di trattamento e terapia; errori grossolani di inquadramento possono configurare responsabilità per gestione inappropriata.",
+    },
+  },
+  {
+    id: "gastro-3-ibd-sospetta-giovane-adulto",
+    specialty: "Gastroenterologia",
+    patientName: "Matteo",
+    patientAge: 27,
+    patientSex: "M",
+    initialMessage:
+      "Dottore, da diversi mesi ho diarrea con sangue e muco, mal di pancia quasi tutti i giorni e mi sento sempre più stanco.",
+    patientProfile:
+      "Giovane uomo di 27 anni, senza patologie croniche note, non fumatorе, nessun intervento chirurgico addominale pregresso. Da circa 6–8 mesi lamenta diarrea cronica con 4–6 scariche al giorno, spesso con presenza di muco e striature di sangue rosso vivo nelle feci; riferisce dolore addominale crampiforme prevalente in fossa iliaca sinistra e ipogastrio, che migliora parzialmente dopo l’evacuazione. Riporta calo ponderale di circa 5 kg, astenia marcata, talora tenesmo rettale. Non febbre elevata, ma episodici rialzi subfebbrili serali. Nessun recente viaggio in paesi a rischio infettivo, nessun uso prolungato di antibiotici. Familiarità positiva per malattia infiammatoria cronica intestinale (IBD) in un cugino di primo grado.",
+    physicalExam:
+      "Parametri vitali: PA 120/70 mmHg, FC 84 bpm, FR 16 atti/min, SpO2 99% in aria ambiente, temperatura 37,3°C. Stato generale: paziente vigile, magro, lievemente pallido, emodinamicamente stabile. Addome: trattabile, lievemente meteorico, dolente alla palpazione profonda in fossa iliaca sinistra e in ipogastrio, senza segni di peritonismo; rumori intestinali presenti, talora vivaci. Non organomegalie palpabili evidenti. Esplorazione rettale (se eseguita): possibile presenza di muco e tracce di sangue rosso vivo. Cute e mucose: lieve pallore cutaneo-mucoso, non ittero. Arti inferiori: assenza di edemi, non segni di trombosi venosa profonda.",
+    truth: {
+      correctDiagnosis:
+        "Sospetta malattia infiammatoria cronica intestinale (probabile rettocolite ulcerosa) in giovane adulto con diarrea cronica muco-ematica",
+      mandatoryQuestions: [
+        "durata esatta della diarrea e numero di scariche quotidiane",
+        "presenza di sangue e muco nelle feci e caratteristiche dell’evacuazione (tenesmo, urgenza)",
+        "calo ponderale e riduzione dell’appetito",
+        "familiarità per IBD, celiachia o altre malattie autoimmuni",
+        "episodi di febbre, artralgie, aftosi orale o manifestazioni cutanee (eritema nodoso, pioderma gangrenoso)",
+        "uso cronico di FANS, antibatterici o altri farmaci potenzialmente lesivi per la mucosa intestinale",
+        "storia di viaggi recenti, cambiamenti dietetici drastici o infezioni gastrointestinali acute precedenti",
+      ],
+      requiredExams: [
+        "Emocromo completo con valutazione per anemia e leucocitosi",
+        "Assetto ferro (ferritina, sideremia, transferrina) e vitamina B12/folati",
+        "PCR, VES e indici di flogosi",
+        "Esame feci con coprocoltura, ricerca parassiti e Clostridioides difficile",
+        "Calprotectina fecale",
+        "Colonscopia con biopsie multiple da colon e retto",
+        "TC Addome con mezzo di contrasto o RM enterografia in caso di dubbio diagnostico o complicanze",
+      ],
+      unnecessaryExams: [
+        "RX Addome in bianco routinario in assenza di segni di occlusione o perforazione",
+        "TC Total Body senza indicazione specifica",
+        "Endoscopie ripetute troppo precocemente senza indicazione clinica",
+      ],
+      legalReference:
+        "Linee guida per la diagnosi di IBD: la mancata esecuzione di colonscopia con biopsie in presenza di diarrea cronica muco-ematica e calprotectina elevata può configurare ritardo diagnostico; attenzione all’uso appropriato di TC Addome con mezzo di contrasto per la valutazione delle complicanze, con corretta informazione sui rischi del contrasto iodato.",
+    },
+  },
+  {
+    id: "emato-1-anemia-sideropenica-da-indagare",
+    specialty: "Ematologia",
+    patientName: "Laura",
+    patientAge: 48,
+    patientSex: "F",
+    initialMessage:
+      "Dottore, da qualche mese mi sento sempre stanca, faccio fatica a fare le scale e mi dicono che sono molto pallida. Mi si spezzano facilmente le unghie e mi cadono più capelli del solito.",
+    patientProfile:
+      "Donna di 48 anni, impiegata, non fumatrice. Da diversi mesi lamenta astenia marcata, ridotta tolleranza allo sforzo (affanno nel salire una rampa di scale), palpitazioni saltuarie e cefalea tensiva; riferisce pallore progressivo notato dai familiari. Riporta fragilità delle unghie, capelli più sottili e caduta aumentata. Cicli mestruali riferiti come abbondanti (menorragia) negli ultimi anni, senza però valutazione ginecologica recente. Non perdita di peso significativa, non dolore addominale importante, alvo tendenzialmente regolare senza sangue macroscopico nelle feci. Nessuna dieta vegetariana o vegana stretta, ma alimentazione povera di carne rossa. Nessuna patologia cronica nota, nessuna terapia cronica di rilievo, saltuaria assunzione di FANS per dismenorrea.",
+    physicalExam:
+      "Parametri vitali: PA 120/75 mmHg, FC 88 bpm, FR 16 atti/min, SpO2 99% in aria ambiente, temperatura 36,5°C. Stato generale: paziente vigile, collaborante, pallida ma emodinamicamente stabile. Cute e mucose: marcato pallore cutaneo-mucoso, unghie fragili con tendenza allo sfaldamento, capelli radi e opachi, possibile glossite lieve (lingua arrossata e liscia). Apparato cardiovascolare: toni cardiaci validi, ritmo regolare, lieve tachicardia sinusale da sforzo minimo. Torace: murmure vescicolare conservato, non rantoli. Addome: trattabile, non dolorabile, non epatosplenomegalia palpabile evidente. Esame rettale differito al percorso di approfondimento in base alla sospetta origine della carenza di ferro.",
+    truth: {
+      correctDiagnosis:
+        "Anemia sideropenica da indagare in donna adulta con verosimile perdite croniche (menorragia) e carenza marziale",
+      mandatoryQuestions: [
+        "durata dei sintomi (astenia, dispnea da sforzo, palpitazioni)",
+        "andamento e quantità del flusso mestruale (menorragia, metrorragia)",
+        "eventuali sanguinamenti occulti o manifesti (melena, ematochezia, epistassi, gengivorragie)",
+        "abitudini alimentari (apporto di ferro nella dieta, eventuale dieta vegetariana/vegana)",
+        "uso cronico di FANS, anticoagulanti o antiaggreganti",
+        "storia di patologie gastrointestinali (celiachia, gastrite cronica, pregressa chirurgia gastrointestinale)",
+        "familiarità per anemie ereditarie o emoglobinopatie",
+      ],
+      requiredExams: [
+        "Emocromo completo con indici eritrocitari (MCV, MCH, RDW)",
+        "Assetto marziale (ferritina, sideremia, transferrina, saturazione della transferrina)",
+        "Vitamina B12 e folati",
+        "Esame periferico dello striscio di sangue",
+        "Esame urine completo (ricerca microematuria)",
+        "Ricerca sangue occulto nelle feci su più campioni",
+        "Endoscopia digestiva (gastroscopia e/o colonscopia) in base al sospetto clinico e all’età della paziente",
+      ],
+      unnecessaryExams: [
+        "TC Total Body di screening senza indicazioni specifiche",
+        "Esami di coagulazione allargati in assenza di storia di coagulopatie o sanguinamenti maggiori",
+        "Dosaggi di markers tumorali non mirati come primo step diagnostico",
+      ],
+      legalReference:
+        "Raccomandazioni per la gestione dell’anemia sideropenica nell’adulto: la semplice prescrizione di ferro senza ricerca della causa sottostante, soprattutto in età non più giovanile, può configurare ritardo diagnostico per patologie gravi (es. neoplasie gastrointestinali); è necessario un percorso di approfondimento strutturato.",
+    },
+  },
+  {
+    id: "reuma-1-artrite-reumatoide-esordio",
+    specialty: "Reumatologia",
+    patientName: "Caterina",
+    patientAge: 45,
+    patientSex: "F",
+    initialMessage:
+      "Dottore, da qualche mese al mattino ho le mani molto rigide e gonfie, faccio fatica ad aprirle e ci mettono più di un’ora per sbloccarsi.",
+    patientProfile:
+      "Donna di 45 anni, impiegata, non fumatrice. Da circa 6 mesi riferisce dolore e tumefazione alle piccole articolazioni delle mani (metacarpo-falangee e interfalangee prossimali) e ai polsi, con rigidità mattutina prolungata superiore a 60 minuti che migliora nel corso della mattinata. Episodi di dolore articolare anche a ginocchia e piedi, con possibile difficoltà a camminare appena alzata. Riferisce astenia, lieve calo di peso involontario, sensazione di ‘stanchezza generale’. Non febbre elevata, non recenti infezioni importanti. Nessuna diagnosi reumatologica pregressa, ma familiarità positiva per malattie autoimmuni (tiroidite autoimmune nella madre). Non uso cronico di cortisonici, saltuaria assunzione di FANS con miglioramento parziale.",
+    physicalExam:
+      "Parametri vitali: PA 118/72 mmHg, FC 78 bpm, FR 14 atti/min, SpO2 99% in aria ambiente, temperatura 36,6°C. Stato generale: paziente vigile, collaborante, normopeso. Apparato muscolo-scheletrico: tumefazione e dolorabilità alla palpazione delle articolazioni metacarpo-falangee e interfalangee prossimali di entrambe le mani, con modesto aumento del calore locale; range di movimento ridotto per dolore nelle prime ore del mattino, migliorato parzialmente al momento della visita. Polsi lievemente dolenti alla palpazione, senza importante versamento. Non deformità articolari strutturate, non deviazioni ulnari; piedi con lieve dolorabilità alle metatarso-falangee. Non rash cutanei tipici di connettiviti sistemiche. Resto dell’esame obiettivo generale nei limiti.",
+    truth: {
+      correctDiagnosis:
+        "Quadro compatibile con artrite reumatoide all’esordio con interessamento simmetrico delle piccole articolazioni delle mani",
+      mandatoryQuestions: [
+        "durata della rigidità mattutina e tempo necessario per migliorare",
+        "sedi articolari coinvolte e simmetria del coinvolgimento",
+        "presenza di dolore notturno e di risveglio articolare",
+        "familiarità per malattie reumatologiche o autoimmuni",
+        "presenza di manifestazioni extra-articolari (astenia marcata, febbricola, secchezza oculare/orale, rash cutanei)",
+        "precedente risposta a FANS o corticosteroidi",
+        "eventuali infezioni recenti o fattori scatenanti",
+      ],
+      requiredExams: [
+        "Emocromo, VES e PCR",
+        "Fattore reumatoide (FR) e anticorpi anti-CCP",
+        "Ricerca autoanticorpi (ANA di base)",
+        "Funzionalità renale ed epatica in vista di eventuale terapia di fondo (DMARD)",
+        "RX mani e piedi in proiezioni standard per valutare erosioni iniziali",
+        "Ecografia articolare o RM articolare mirata se RX non conclusiva ma quadro clinico suggestivo",
+      ],
+      unnecessaryExams: [
+        "TC Total Body o RM Total Body senza indicazione",
+        "Dosaggi estesi di markers tumorali in assenza di sintomi di allarme specifici",
+        "Biopsie sinoviali routinarie in fase di primo inquadramento clinico-strumentale",
+      ],
+      legalReference:
+        "Linee guida per la diagnosi precoce di artrite reumatoide: il riconoscimento e l’invio tempestivo a valutazione specialistica reumatologica per avviare una terapia di fondo (DMARD) entro la ‘finestra di opportunità’ sono essenziali per prevenire danni articolari permanenti; ritardi prolungati possono configurare profili di responsabilità per mancata diagnosi tempestiva.",
+    },
+  },
+  {
     id: "psich-2-psicosi-acuta-con-agitazione",
     specialty: "Psichiatria",
     patientName: "Federico",
@@ -601,6 +850,596 @@ export const CLINICAL_CASES: ClinicalCase[] = [
       ],
       legalReference:
         "Percorsi tempo-dipendenti per le sindromi aortiche acute: il mancato riconoscimento di segni suggestivi (dolore lacerante, irradiazione dorsale, asimmetria pressoria) e il ritardo nell’esecuzione di angio-TC possono configurare gravi profili di responsabilità medico-legale.",
+    },
+  },
+  {
+    id: "emergenza-1-pneumotorace-iperteso",
+    specialty: "Emergenza",
+    patientName: "Luca",
+    patientAge: 34,
+    patientSex: "M",
+    initialMessage:
+      "Dottore, all’improvviso ho iniziato a sentire un fortissimo dolore al petto a destra e ora faccio molta fatica a respirare.",
+    patientProfile:
+      "Uomo di 34 anni, fumatore, senza cardiopatie note. Insorgenza improvvisa, durante uno sforzo lieve, di dolore toracico trafittivo in emitorace destro con dispnea ingravescente. All’arrivo in PS appare in marcato distress respiratorio, con sudorazione fredda e agitazione. All’esame obiettivo murmure vescicolare molto ridotto/assente a destra, iperfonesi plessica e deviazione del punto di massima impulse verso sinistra; giugulari turgide, ipotensione progressiva.",
+    physicalExam:
+      "Parametri vitali: PA 85/55 mmHg, FC 132 bpm, FR 32 atti/min, SpO2 86% in aria ambiente, temperatura 36,8°C. Torace: emitorace destro iperespanso, riduzione marcata del murmure vescicolare a destra, rumori respiratori conservati a sinistra; timpanismo alla percussione a destra. Giugulari turgide, polsi periferici filiformi. Addome trattabile, non dolente.",
+    truth: {
+      correctDiagnosis: "Pneumotorace iperteso destro in paziente giovane fumatore",
+      mandatoryQuestions: [
+        "modalità di insorgenza del dolore e della dispnea",
+        "eventuali traumi toracici recenti",
+        "storia di pneumotorace spontaneo pregresso",
+        "abitudine tabagica o consumo di droghe per via inalatoria",
+      ],
+      requiredExams: [
+        "Valutazione clinica immediata con monitoraggio continuo",
+        "Decompressione toracica urgente (ago o drenaggio) prima degli esami se quadro instabile",
+        "RX Torace dopo stabilizzazione per conferma e valutazione estensione",
+      ],
+      unnecessaryExams: [
+        "TC Torace prima della decompressione in quadro di instabilità",
+        "Esami radiologici ritardanti in paziente con chiari segni clinici di pneumotorace iperteso",
+      ],
+      legalReference:
+        "Gestione tempo-dipendente del pneumotorace iperteso: il ritardo nella decompressione immediata in presenza di segni clinici tipici può configurare grave responsabilità professionale.",
+    },
+  },
+  {
+    id: "emergenza-2-infarto-stemi",
+    specialty: "Emergenza",
+    patientName: "Giulia",
+    patientAge: 59,
+    patientSex: "F",
+    initialMessage:
+      "Dottore, ho un dolore fortissimo al centro del petto che non passa e mi prende il braccio sinistro e la mandibola.",
+    patientProfile:
+      "Donna di 59 anni, ipertesa e diabetica, forte fumatrice. Dolore toracico costrittivo, molto intenso, insorto da circa 40 minuti a riposo, con irradiazione al braccio sinistro e alla mandibola, associato a sudorazione fredda e nausea. Non episodi simili di questa intensità in passato. All’arrivo appare sofferente, pallida, sudata, con dispnea lieve da sforzo minimo.",
+    physicalExam:
+      "Parametri vitali: PA 135/85 mmHg, FC 104 bpm, FR 22 atti/min, SpO2 94% in aria ambiente, temperatura 36,6°C. Torace: murmure vescicolare conservato, dolore non riproducibile alla palpazione. Cuore: toni cardiaci ritmici, possibile terzo tono tenue, polsi periferici presenti. Edemi declivi assenti.",
+    truth: {
+      correctDiagnosis: "Infarto miocardico acuto con sopraslivellamento del tratto ST (STEMI) in paziente ad alto rischio",
+      mandatoryQuestions: [
+        "orario di inizio del dolore toracico e durata",
+        "caratteristiche del dolore (costrittivo, irradiato, associato a dispnea o nausea)",
+        "pregresse cardiopatie e terapie in corso",
+        "fattori di rischio cardiovascolari (fumo, diabete, ipertensione, ipercolesterolemia)",
+      ],
+      requiredExams: [
+        "ECG a 12 derivazioni immediato e seriato",
+        "Dosaggio urgente della troponina",
+        "Accesso a emodinamica per coronarografia urgente secondo rete STEMI",
+      ],
+      unnecessaryExams: [
+        "RX Torace come unico esame decisionale",
+        "TC Torace non mirata in quadro tipico di STEMI",
+      ],
+      legalReference:
+        "Percorsi organizzativi per STEMI: mancata esecuzione tempestiva di ECG e attivazione della rete di emodinamica può configurare grave profilo di colpa per ritardo terapeutico.",
+    },
+  },
+  {
+    id: "emergenza-3-ictus-ischemico-acuto",
+    specialty: "Emergenza",
+    patientName: "Franco",
+    patientAge: 69,
+    patientSex: "M",
+    initialMessage:
+      "Dottore, da meno di un’ora mi si è improvvisamente indebolito il braccio e la gamba destra e faccio fatica a parlare bene.",
+    patientProfile:
+      "Uomo di 69 anni, iperteso e diabetico, ex fumatore. Insorgenza improvvisa di deficit di forza all’arto superiore e inferiore destro associato a disartria, insorto circa 45 minuti prima dell’arrivo in PS. Nessun trauma cranico recente, nessuna crisi convulsiva. Ultimo momento visto bene riferito con chiarezza. All’arrivo vigile ma ansioso, con deficit neurologico focale stabile.",
+    physicalExam:
+      "Parametri vitali: PA 180/100 mmHg, FC 92 bpm, FR 18 atti/min, SpO2 98% in aria ambiente, temperatura 36,7°C. Esame neurologico: forza ridotta a carico di arto superiore e inferiore destro, lieve asimmetria del sorriso, disartria moderata; sensibilità grossolana conservata. Nessun segno di meningismo. Torace e apparato cardiovascolare senza reperti acuti.",
+    truth: {
+      correctDiagnosis: "Ictus ischemico acuto in finestra terapeutica potenzialmente eleggibile a trombolisi/trombectomia",
+      mandatoryQuestions: [
+        "orario esatto di insorgenza dei sintomi",
+        "ultimo momento in cui il paziente era visto in condizioni normali",
+        "terapie in corso (in particolare anticoagulanti/antiaggreganti)",
+        "pregressi eventi ischemici cerebrali o emorragici",
+        "fattori di rischio cardiovascolari e presenza di fibrillazione atriale",
+      ],
+      requiredExams: [
+        "TC Encefalo urgente per escludere emorragia",
+        "Esami ematochimici urgenti (coagulazione, glicemia, elettroliti)",
+        "ECG e monitoraggio cardiaco",
+        "Eventuale TC/RM perfusionale e angio-TC per valutare eleggibilità a trombectomia",
+      ],
+      unnecessaryExams: [
+        "RX Cranio",
+        "TC Total Body senza indicazione",
+        "Esami radiologici che ritardano l’accesso alla finestra terapeutica",
+      ],
+      legalReference:
+        "Percorso tempo-dipendente per ictus ischemico acuto (stroke code): il ritardo nella valutazione in stroke unit e nell’esecuzione di TC/angio-TC può configurare responsabilità per perdita di chance terapeutica.",
+    },
+  },
+  {
+    id: "emergenza-4-shock-anafilattico",
+    specialty: "Emergenza",
+    patientName: "Elena",
+    patientAge: 52,
+    patientSex: "F",
+    initialMessage:
+      "Dottore, pochi minuti dopo che mi hanno fatto un antibiotico in vena ho iniziato a sentire prurito ovunque, il viso mi si è gonfiato e adesso faccio molta fatica a respirare.",
+    patientProfile:
+      "Donna di 52 anni, anamnesi positiva per rinite allergica stagionale, senza altre allergie dichiarate a farmaci. Ricoverata in reparto per polmonite comunitaria, ha appena iniziato infusione endovenosa di antibiotico beta-lattamico. Dopo pochi minuti dall’inizio dell’infusione insorgenza di prurito diffuso, orticaria generalizzata, senso di costrizione toracica, difficoltà respiratoria e sensazione di svenimento imminente. All’arrivo in PS viene trasferita in area emergenza con quadro di shock in evoluzione.",
+    physicalExam:
+      "Parametri vitali: PA 70/40 mmHg, FC 132 bpm, FR 30 atti/min, SpO2 88% in aria ambiente, temperatura 36,2°C. Stato generale: paziente agitata, sudata fredda, con marcato distress respiratorio. Cute: orticaria diffusa, eritema generalizzato, edema evidente a livello periorbitario e delle labbra. Apparato respiratorio: respiro rumoroso con sibili diffusi, utilizzo dei muscoli accessori, possibile stridore laringeo. Polsi periferici filiformi, riempimento capillare rallentato. Addome trattabile, non dolente. Stato neurologico: vigile ma confusa per ipoperfusione.",
+    truth: {
+      correctDiagnosis:
+        "Shock anafilattico in seguito a somministrazione endovenosa di antibiotico beta-lattamico",
+      mandatoryQuestions: [
+        "farmaco somministrato (nome, dose, via e tempo di inizio)",
+        "precedenti reazioni allergiche a farmaci o mezzi di contrasto",
+        "tempo esatto tra somministrazione e insorgenza dei sintomi",
+        "presenza di sintomi respiratori (sibili, senso di costrizione, stridore)",
+        "presenza di sintomi gastrointestinali (vomito, dolori addominali)",
+      ],
+      requiredExams: [
+        "Monitoraggio continuo (PA, FC, FR, SpO2) e accessi venosi multipli",
+        "Somministrazione immediata di adrenalina intramuscolo secondo linee guida",
+        "Espansione volemica rapida con cristalloidi",
+        "Emogasanalisi arteriosa",
+        "Valutazione per eventuale supporto ventilatorio avanzato / rianimazione",
+      ],
+      unnecessaryExams: [
+        "TC Torace prima della stabilizzazione emodinamica",
+        "Esami radiologici ritardanti il trattamento con adrenalina",
+      ],
+      legalReference:
+        "Gestione dello shock anafilattico: la pronta somministrazione di adrenalina e il supporto vitale avanzato sono obblighi assistenziali tempo-dipendenti; ritardi ingiustificati possono configurare responsabilità grave.",
+    },
+  },
+  {
+    id: "emergenza-5-emorragia-digestiva-superiore",
+    specialty: "Emergenza",
+    patientName: "Salvatore",
+    patientAge: 64,
+    patientSex: "M",
+    initialMessage:
+      "Dottore, ho vomitato tanto sangue rosso scuro e mi sento debolissimo, come se stessi per svenire.",
+    patientProfile:
+      "Uomo di 64 anni, storia di cirrosi epatica alcol-correlata con ipertensione portale nota. Pregresse varici esofagee note, controllo endoscopico non recente. Da qualche ora insorgenza di ematemesi abbondante con vomito di sangue rosso scuro e a volte a 'fondo di caffè', associata a melena. All’arrivo in PS appare sudato, pallido, ipoteso, con sensazione di estrema debolezza e presincope.",
+    physicalExam:
+      "Parametri vitali: PA 80/50 mmHg, FC 120 bpm, FR 24 atti/min, SpO2 94% in aria ambiente, temperatura 36,4°C. Stato generale: paziente in shock ipovolemico, estremità fredde, cute marezzata, sudorazione profusa. Addome: modesto ascite, fegato lievemente palpabile, non segni di peritonite. Esame obiettivo proctologico (se eseguito): presenza di melena. Segni di epatopatia cronica (stigmate epatiche, teleangectasie).",
+    truth: {
+      correctDiagnosis:
+        "Emorragia digestiva superiore massiva in paziente cirrotico con sospetto sanguinamento da varici esofagee",
+      mandatoryQuestions: [
+        "quantità e numero di episodi di ematemesi/melena",
+        "uso di FANS, anticoagulanti o antiaggreganti",
+        "pregresse endoscopie con documentazione di varici esofagee",
+        "presenza di segni di encefalopatia (confusione, sonnolenza)",
+        "eventuali episodi emorragici simili in passato",
+      ],
+      requiredExams: [
+        "Prelievi ematochimici urgenti (emocromo, coagulazione, funzionalità epatica e renale)",
+        "Gruppo sanguigno e prove crociate per emoderivati",
+        "Endoscopia digestiva alta urgente con possibilità di trattamento emostatico",
+        "Monitoraggio intensivo in area critica",
+        "Ecografia addome secondo disponibilità (valutazione di base)",
+      ],
+      unnecessaryExams: [
+        "TC Addome con contrasto prima della stabilizzazione emodinamica",
+        "RX Addome in bianco in assenza di sospetto di perforazione",
+      ],
+      legalReference:
+        "Gestione dell’emorragia digestiva superiore in paziente cirrotico: la mancata attivazione tempestiva del percorso endoscopico e del supporto emodinamico intensivo può configurare perdita di chance terapeutica significativa.",
+    },
+  },
+  {
+    id: "emergenza-6-embolia-polmonare-massiva",
+    specialty: "Emergenza",
+    patientName: "Marco",
+    patientAge: 58,
+    patientSex: "M",
+    initialMessage:
+      "Dottore, all’improvviso ho iniziato a non riuscire più a respirare bene e ho un forte dolore al petto quando respiro.",
+    patientProfile:
+      "Uomo di 58 anni, recente intervento chirurgico ortopedico maggiore a un arto inferiore, ancora parzialmente immobilizzato. Fattori di rischio tromboembolico importanti (obesità, fumo, possibile trombofilia familiare non studiata). Insorgenza improvvisa di dispnea intensa a riposo con dolore toracico puntorio in regione basale destra, peggiorato dalla respirazione profonda. Riferisce anche palpitazioni e sensazione di svenimento imminente.",
+    physicalExam:
+      "Parametri vitali: PA 85/55 mmHg, FC 118 bpm, FR 30 atti/min, SpO2 86% in aria ambiente, temperatura 36,7°C. Stato generale: paziente in marcato distress respiratorio, sudorazione fredda, ansia. Torace: murmure vescicolare globalmente conservato, possibile riduzione basale destra; dolore alla palpazione in sede toracica inferiore destra. Apparato cardiovascolare: tachicardia, toni cardiaci ipofonetici, possibile sdoppiamento del secondo tono polmonare. Arti inferiori: edemi declivi lievi, possibile segno di trombosi venosa profonda all’arto inferiore operato.",
+    truth: {
+      correctDiagnosis:
+        "Sospetta embolia polmonare massiva in paziente post-chirurgico con instabilità emodinamica",
+      mandatoryQuestions: [
+        "data e tipo di intervento chirurgico recente",
+        "grado di immobilizzazione e uso di profilassi anticoagulante",
+        "episodi precedenti di TVP/EP",
+        "presenza di dolore o gonfiore a un arto inferiore",
+        "eventuale storia familiare di trombofilia",
+      ],
+      requiredExams: [
+        "Emogasanalisi arteriosa urgente",
+        "ECG (ricerca di segni di sovraccarico destro)",
+        "Angio-TC polmonare urgente se condizioni lo permettono",
+        "Ecocardiogramma urgente per valutare sovraccarico del ventricolo destro",
+        "Dosaggio D-Dimero solo se quadro non a rischio alto secondo score clinici",
+      ],
+      unnecessaryExams: [
+        "RX Torace come unico esame decisionale",
+        "TC Torace senza contrasto non mirata alla vascolarizzazione polmonare",
+      ],
+      legalReference:
+        "Percorsi tempo-dipendenti per embolia polmonare ad alto rischio: ritardi nell’esecuzione di angio-TC/ecocardiogramma e nell’avvio di terapia anticoagulante/trombolitica possono configurare grave responsabilità per perdita di chance.",
+    },
+  },
+  {
+    id: "emergenza-7-stato-male-epilettico",
+    specialty: "Emergenza",
+    patientName: "Alessandro",
+    patientAge: 37,
+    patientSex: "M",
+    initialMessage:
+      "Il paziente è arrivato in PS in ambulanza in crisi convulsiva tonico-clonica generalizzata che non si è mai fermata spontaneamente.",
+    patientProfile:
+      "Uomo di 37 anni, storia nota di epilessia focale in terapia irregolare con farmaci antiepilettici. Secondo i familiari, da circa 20 minuti presenta crisi convulsive tonico-cloniche generalizzate senza recupero completo di coscienza tra un episodio e l’altro. Non trauma cranico evidente riferito prima dell’evento. Possibile sospensione autonoma della terapia da alcuni giorni. All’arrivo in PS è ancora in crisi convulsiva.",
+    physicalExam:
+      "Parametri vitali: PA 150/90 mmHg, FC 120 bpm, FR 26 atti/min, SpO2 90% in aria ambiente, temperatura 37,4°C. Stato generale: paziente in crisi tonico-clonica generalizzata, non contattabile, ipersalivazione, possibile morsicatura della lingua. Pupille isocoriche e reagenti ma difficili da valutare per il movimento. Necessario immediato supporto delle vie aeree e protezione fisica. Non segni esterni di trauma evidente al capo, torace o addome.",
+    truth: {
+      correctDiagnosis:
+        "Stato di male epilettico tonico-clonico generalizzato in paziente con epilessia nota e sospetta scarsa aderenza terapeutica",
+      mandatoryQuestions: [
+        "durata complessiva delle crisi senza recupero di coscienza",
+        "aderenza alla terapia antiepilettica e eventuali variazioni di dose",
+        "uso di alcol o sostanze stupefacenti",
+        "eventuale trauma cranico associato o precedente",
+        "patologie neurologiche e metaboliche note",
+      ],
+      requiredExams: [
+        "Stabilizzazione delle vie aeree e supporto ventilatorio se necessario",
+        "Somministrazione sequenziale di benzodiazepine e farmaci di seconda linea secondo protocollo",
+        "Emogasanalisi arteriosa, glicemia, elettroliti",
+        "TC Encefalo urgente per escludere lesioni strutturali acute",
+        "Valutazione per ricovero in terapia intensiva/rianimazione",
+      ],
+      unnecessaryExams: [
+        "RM Encefalo in fase iperacuta prima della stabilizzazione",
+        "Esami radiologici non mirati che ritardino il trattamento antiepilettico urgente",
+      ],
+      legalReference:
+        "Linee guida per lo stato di male epilettico: il ritardo nel trattamento farmacologico aggressivo e nel supporto delle funzioni vitali può configurare responsabilità per danno neurologico permanente evitabile.",
+    },
+  },
+  {
+    id: "emergenza-8-edema-polmonare-acuto",
+    specialty: "Emergenza",
+    patientName: "Rosa",
+    patientAge: 72,
+    patientSex: "F",
+    initialMessage:
+      "Dottore, non riesco a respirare, sento come se stessi affogando e sto tossendo una schiuma rosa.",
+    patientProfile:
+      "Donna di 72 anni, ipertesa di lunga data, nota cardiopatia ischemica con pregresso infarto e frazione di eiezione ridotta. Riferisce brusca comparsa di grave dispnea a riposo durante la notte, costringendola a sedersi a letto. Tosse con escreato schiumoso rosato, ortopnea marcata, possibile dolore toracico vago. All’arrivo in PS appare molto dispnoica, spaventata, con storia di scarso controllo pressorio e scarsa aderenza alla terapia diuretica.",
+    physicalExam:
+      "Parametri vitali: PA 190/110 mmHg, FC 112 bpm, FR 32 atti/min, SpO2 82% in aria ambiente, temperatura 36,8°C. Stato generale: paziente in grave distress respiratorio, seduta, cianotica perifericamente, sudata. Torace: rantoli crepitanti diffusi a mantellina bilaterali, soprattutto alle basi, sibili possibili; murmure vescicolare ridotto per rumori sovrastanti. Apparato cardiovascolare: tachicardia, toni cardiaci assenti di soffi evidenti per rumore respiratorio, giugulari turgide. Edemi declivi agli arti inferiori.",
+    truth: {
+      correctDiagnosis:
+        "Edema polmonare acuto cardiogeno ipertensivo in paziente con scompenso cardiaco cronico",
+      mandatoryQuestions: [
+        "aderenza alla terapia per scompenso (diuretici, ACE-inibitori, beta-bloccanti)",
+        "episodi recenti di peggioramento della dispnea o ricoveri per scompenso",
+        "presenza di dolore toracico tipico o atipico",
+        "assunzione recente di liquidi/sale in eccesso",
+        "eventuali aritmie note (es. fibrillazione atriale)",
+      ],
+      requiredExams: [
+        "Monitoraggio intensivo (PA, FC, FR, SpO2) con accesso venoso affidabile",
+        "Emogasanalisi arteriosa urgente",
+        "ECG a 12 derivazioni",
+        "RX Torace urgente per confermare quadro di congestione polmonare",
+        "Ematochimici di base inclusi BNP/NT-proBNP e funzione renale",
+      ],
+      unnecessaryExams: [
+        "TC Torace in prima battuta senza indicazioni aggiuntive",
+        "Esami che ritardano la ventilazione non invasiva o i diuretici e.v.",
+      ],
+      legalReference:
+        "Gestione dell’edema polmonare acuto: la tempestiva somministrazione di ossigenoterapia/ventilazione non invasiva, diuretici e vasodilatatori è essenziale; ritardi ingiustificati nel trattamento possono configurare responsabilità per peggioramento respiratorio evitabile.",
+    },
+  },
+  {
+    id: "emergenza-9-dissezione-aortica-acuta",
+    specialty: "Emergenza",
+    patientName: "Carlo",
+    patientAge: 62,
+    patientSex: "M",
+    initialMessage:
+      "Dottore, ho un dolore fortissimo al petto che è iniziato all’improvviso e adesso lo sento come se mi stesse strappando la schiena tra le scapole.",
+    patientProfile:
+      "Uomo di 62 anni, iperteso di lunga data con controllo pressorio irregolare, fumatore attivo. Nessuna coronaropatia documentata, ma familiarità per morte cardiaca improvvisa in età giovanile in un fratello. Riferisce insorgenza improvvisa, mentre era a riposo, di dolore toracico violento, descritto come lancinante e ‘come una lacerazione’, con rapida irradiazione tra le scapole. Il dolore ha raggiunto subito la massima intensità e non si modifica con il respiro o i movimenti. All’arrivo in PS appare agitato, sudato, molto sofferente. Non riferisce trauma toracico recente né sforzi fisici eccezionali nelle ore precedenti.",
+    physicalExam:
+      "Parametri vitali: PA 200/110 mmHg misurata al braccio destro, PA 90/60 mmHg al braccio sinistro; FC 110 bpm, FR 24 atti/min, SpO2 95% in aria ambiente, temperatura 36,7°C. Stato generale: paziente pallido, sudato, in dolore severo, ansioso. Apparato cardiovascolare: toni cardiaci validi, presenza di nuovo soffio diastolico decrescente lungo il margine sternale destro (sospetta insufficienza aortica acuta); polso radiale destro ben percepibile, assenza di polso radiale sinistro alla palpazione; possibili differenze di riempimento e ampiezza dei polsi femorali. Torace: murmure vescicolare conservato bilateralmente, dolore non riproducibile alla palpazione della parete toracica. Addome trattabile, non francamente dolente, ma il paziente riferisce sensazione di peso epigastrico vago. Nessun deficit neurologico focale evidente al momento, ma lamenta senso di instabilità alle gambe durante i tentativi di mobilizzazione.",
+    truth: {
+      correctDiagnosis:
+        "Dissezione aortica acuta (sindrome aortica acuta) con coinvolgimento dell’aorta toracica e potenziale estensione addominale",
+      mandatoryQuestions: [
+        "caratteristiche precise del dolore (insorgenza improvvisa, tipo lacerante, irradiato al dorso/inter-scapolare, intensità massima all’esordio)",
+        "eventuali episodi simili in passato o diagnosi nota di aneurisma/dissezione aortica",
+        "storia familiare di morte improvvisa precoce o sindromi del tessuto connettivo",
+        "aderenza alla terapia antipertensiva e valori pressori abituali",
+        "presenza di sintomi neurologici (sincope, deficit di forza o sensibilità, confusione improvvisa)",
+        "eventuale migrazione del dolore verso addome o arti inferiori",
+      ],
+      requiredExams: [
+        "ECG a 12 derivazioni per escludere concomitante sindrome coronarica acuta",
+        "Angio-TC Torace/Addome con mezzo di contrasto urgente per studio completo dell’aorta",
+        "Emocromo, coagulazione, funzionalità renale ed elettroliti",
+        "Monitoraggio pressorio e cardiaco continuo in area critica con rapido controllo della pressione arteriosa",
+      ],
+      unnecessaryExams: [
+        "RX Torace come unico esame decisionale in quadro fortemente suggestivo di sindrome aortica acuta",
+        "D-Dimero come unico test per escludere la dissezione",
+        "TC Torace senza studio mirato dell’aorta o senza mezzo di contrasto in prima battuta",
+      ],
+      legalReference:
+        "Percorsi tempo-dipendenti per la dissezione aortica acuta: il mancato riconoscimento di dolore toracico lacerante con asimmetria pressoria e assenza di polso, e il ritardo nell’esecuzione di Angio-TC Torace/Addome con mezzo di contrasto possono configurare gravi profili di responsabilità medico-legale; è obbligatoria una valutazione rapida dei rischi del mezzo di contrasto e la documentazione dell’informazione al paziente (alert per mezzo di contrasto iodato).",
+    },
+  },
+  {
+    id: "epato-1-cirrosi-epatica-scompensata",
+    specialty: "Epatologia / Medicina Interna",
+    patientName: "Antonio",
+    patientAge: 58,
+    patientSex: "M",
+    initialMessage:
+      "Dottore, da qualche settimana mi si è gonfiata molto la pancia, mi sento sempre stanco e mia moglie dice che ho gli occhi gialli e che sono più confuso del solito.",
+    patientProfile:
+      "Uomo di 58 anni con storia nota di epatopatia cronica alcol-correlata e sospetta cirrosi, follow-up epatologico irregolare. Riferisce progressiva distensione addominale da alcune settimane, con aumento di peso a fronte di ridotto appetito. Segnala astenia marcata, calo della forza muscolare, prurito diffuso e comparsa di edemi declivi agli arti inferiori. La moglie riferisce recente inversione del ritmo sonno-veglia, maggiore irritabilità e momenti di disattenzione e rallentamento cognitivo. Non ematemesi in atto, ma alvo talora ipocolico. Anamnesi positiva per abuso alcolico protratto, sospetta ipertensione portale non monitorata negli ultimi anni.",
+    physicalExam:
+      "Parametri vitali: PA 105/65 mmHg, FC 92 bpm, FR 18 atti/min, SpO2 97% in aria ambiente, temperatura 36,8°C. Ispezione: ittero sclerale, teleangectasie cutanee, eritema palmare, ginecomastia modesta. Addome globoso con falda ascitica tesa, giugulo-ombelicale positivo, addome non francamente dolente alla palpazione, assenza di segni di peritonite. Fegato poco palpabile, margine smusso, milza palpabile a 3 cm dall'arco costale sinistro. Edemi declivi agli arti inferiori ++. Esame neurologico: paziente vigile ma rallentato, disorientamento temporale lieve, tremore fine in estensione (asterixis/“flapping tremor” positivo), inversione del ritmo sonno-veglia riferita (encefalopatia epatica stadio I).",
+    truth: {
+      correctDiagnosis:
+        "Cirrosi epatica scompensata con ascite tesa e encefalopatia epatica di grado I in contesto di epatopatia cronica alcol-correlata",
+      mandatoryQuestions: [
+        "anamnesi di consumo alcolico e durata dell'abuso",
+        "diagnosi pregresse di epatopatia cronica o cirrosi e follow-up specialistico",
+        "comparsa e progressione di ascite, edemi declivi e segni di ipertensione portale",
+        "presenza di episodi di encefalopatia epatica (confusione, inversione sonno-veglia, alterazioni del comportamento)",
+        "eventuali episodi di ematemesi o melena pregressi (sanguinamento da varici esofagee)",
+        "farmaci in uso, in particolare diuretici, FANS, sedativi o benzodiazepine",
+      ],
+      requiredExams: [
+        "Emocromo, funzionalità epatica e renale, assetto coagulativo completo",
+        "Ecografia addome con studio del circolo portale",
+        "Paracentesi diagnostica con esame del liquido ascitico (citologia, albumina, coltura)",
+        "Ammoniemia e assetto elettrolitico",
+        "Markers virali e autoimmuni epatici (HBV, HCV, autoanticorpi) secondo contesto",
+      ],
+      unnecessaryExams: [
+        "TC Addome con mezzo di contrasto di routine in assenza di sospetto di complicanze focali o trombosi portale non altrimenti valutabile",
+        "RM Addome di screening non mirata",
+        "Esami radiologici non correlati (RX Colonna, RX Arti) senza indicazione specifica",
+      ],
+      legalReference:
+        "Gestione della cirrosi epatica scompensata: la mancata esecuzione di paracentesi diagnostica in presenza di nuova ascite tesa o peggioramento rapido, e la sottovalutazione dei segni di encefalopatia epatica possono configurare ritardo diagnostico-terapeutico con rischio di responsabilità professionale secondo Legge 24/2017 (Gelli-Bianco).",
+    },
+  },
+  {
+    id: "pneumo-2-bpco-riacutizzata",
+    specialty: "Pneumologia",
+    patientName: "Giancarlo",
+    patientAge: 69,
+    patientSex: "M",
+    initialMessage:
+      "Dottore, da tre giorni faccio molta più fatica del solito a respirare, tossisco con catarro giallo e oggi anche pochi passi mi lasciano senza fiato.",
+    patientProfile:
+      "Uomo di 69 anni, grande fumatore (40 pacchetti/anno), diagnosi nota di BPCO stadio GOLD III con ossigenoterapia domiciliare notturna. Riferisce da 3–4 giorni aumento marcato della dispnea rispetto al suo stato basale, con tosse produttiva ed espettorato purulento giallo-verdastro. Da 24 ore utilizzo frequente del broncodilatatore a breve durata senza sollievo significativo. Riporta aumento della fatica nei piccoli spostamenti domestici e comparsa di lieve sonnolenza diurna. Non dolore toracico tipico cardiaco, non emoftoe, non viaggi recenti.",
+    physicalExam:
+      "Parametri vitali: PA 130/80 mmHg, FC 108 bpm, FR 26 atti/min, SpO2 88% in aria ambiente (basale domiciliare riferita 92–93%), temperatura 37,8°C. Stato generale: paziente dispnoico, uso evidente dei muscoli accessori, posizione seduta a busto flesso in avanti. Torace: iperinsufflazione, murmure vescicolare globalmente ridotto con sibili diffusi e ronchi espiratori, espirazione prolungata; presenza di tremore vocale ridotto alle basi. Cuore: toni tachicardici ma ritmici, non soffi maggiori. Estremità calde, lieve cianosi labiale. Edemi declivi assenti o modesti.",
+    truth: {
+      correctDiagnosis:
+        "Riacutizzazione di broncopneumopatia cronica ostruttiva (BPCO) in paziente fumatore con peggioramento acuto della dispnea ed espettorato purulento",
+      mandatoryQuestions: [
+        "gravità e durata della dispnea rispetto al basale (numero di gradini o attività tollerate)",
+        "quantità e caratteristiche dell'espettorato (purulento, ematico)",
+        "aderenza alla terapia inalatoria di fondo e uso di ossigenoterapia domiciliare",
+        "numero di riacutizzazioni/riporti in PS o ricoveri negli ultimi 12 mesi",
+        "presenza di febbre, dolore toracico pleuritico o segni di infezione respiratoria",
+        "abitudine tabagica attuale e pregressa",
+      ],
+      requiredExams: [
+        "Emogasanalisi arteriosa (EGA)",
+        "Emocromo con indici di flogosi (PCR/VES)",
+        "RX Torace in due proiezioni",
+        "Emocolture e/o esame dell'espettorato in caso di quadro severo",
+        "Monitoraggio saturimetrico continuo e valutazione per supporto ventilatorio non invasivo",
+      ],
+      unnecessaryExams: [
+        "TC Torace ad alta risoluzione in fase acuta non complicata",
+        "Dosaggio routinario di D-Dimero in assenza di sospetto clinico di embolia polmonare",
+        "RM Torace",
+      ],
+      legalReference:
+        "Linee guida GOLD per la gestione della BPCO: nelle riacutizzazioni con peggioramento significativo della dispnea e ipossiemia è obbligatoria una valutazione rapida dei gas arteriosi e della necessità di ventilazione non invasiva; omissioni o ritardi possono configurare profilo di colpa per mancata gestione adeguata di insufficienza respiratoria acuta su BPCO.",
+    },
+  },
+  {
+    id: "nefro-2-irc-stadio4",
+    specialty: "Nefrologia",
+    patientName: "Bruno",
+    patientAge: 72,
+    patientSex: "M",
+    initialMessage:
+      "Dottore, da qualche mese mi sento sempre più stanco, mi prude tutto il corpo e mi hanno detto che la creatinina è salita ancora.",
+    patientProfile:
+      "Uomo di 72 anni con diagnosi nota di insufficienza renale cronica (IRC) da nefropatia ipertensiva e diabetica, in follow-up nefrologico irregolare. Riferisce astenia marcata, ridotta tolleranza allo sforzo, crampi muscolari notturni e prurito diffuso. Esami recenti mostrano peggioramento progressivo della funzione renale (creatininemia in aumento, eGFR in fascia stadio IV). Anamnesi positiva per ipertensione e diabete mellito di lunga data, controllo pressorio e glicemico subottimale. Non dialisi in corso, ma nefrologo aveva già discusso possibile preparazione all’accesso vascolare. Riferisce inappetenza, lieve nausea saltuaria e disturbi del sonno.",
+    physicalExam:
+      "Parametri vitali: PA 150/85 mmHg, FC 88 bpm, FR 18 atti/min, SpO2 97% in aria ambiente, temperatura 36,7°C. Cute secca con escoriazioni da grattamento, occasionali iperpigmentazioni. Edemi declivi lievi alle caviglie. Cuore: toni validi, ritmo regolare, non soffi maggiori. Torace: murmure vescicolare conservato bilateralmente. Addome: trattabile, non dolente, reni non palpabili. Esame neurologico: vigile, orientato, lamente disturbi del sonno ma nessun deficit focale.",
+    truth: {
+      correctDiagnosis:
+        "Insufficienza renale cronica (IRC) stadio IV in paziente iperteso e diabetico con sintomi uremici iniziali",
+      mandatoryQuestions: [
+        "valori recenti di creatinina, urea ed eGFR e loro trend nel tempo",
+        "presenza di diabete mellito e ipertensione e relativo controllo terapeutico",
+        "assunzione di farmaci nefrotossici (FANS, mezzi di contrasto, ACE-inibitori ad alte dosi non monitorati)",
+        "presenza di sintomi uremici (nausea, vomito, prurito, disturbi del sonno, alterazioni della concentrazione)",
+        "eventuali episodi di iperpotassiemia nota o aritmie correlate",
+        "valutazione di anemia e stato marziale, eventuali trasfusioni o terapia con eritropoietina",
+      ],
+      requiredExams: [
+        "Funzionalità renale completa (urea, creatinina, eGFR, elettroliti con particolare attenzione al potassio)",
+        "Emocromo per valutazione anemia (normocitica/normocromica da IRC)",
+        "Esame urine completo con valutazione proteinuria/albuminuria",
+        "Ecografia renale e delle vie urinarie",
+        "Valutazione cardiologica di base (ECG) in presenza di iperpotassiemia o fattori di rischio",
+      ],
+      unnecessaryExams: [
+        "TC Addome con mezzo di contrasto senza valutazione preventiva del rischio nefrotossico",
+        "RM con mezzo di contrasto gadolinio in assenza di indicazione forte (rischio fibrosi sistemica nefrogenica)",
+        "Esami radiologici ripetuti non mirati che non modificano la gestione clinica",
+      ],
+      legalReference:
+        "Linee guida per la gestione della malattia renale cronica: è obbligatorio pianificare precocemente il percorso di preparazione alla dialisi e correggere i fattori di progressione. La mancata sorveglianza di iperpotassiemia severa, anemia significativa o peggioramento rapido dell'eGFR può configurare responsabilità per omissione di adeguato monitoraggio e trattamento.",
+    },
+  },
+  {
+    id: "neuro-4-parkinson-esordio",
+    specialty: "Neurologia",
+    patientName: "Enrico",
+    patientAge: 63,
+    patientSex: "M",
+    initialMessage:
+      "Dottore, da qualche mese mi trema la mano destra quando sono fermo e mi sento più lento nei movimenti, faccio fatica a partire quando cammino.",
+    patientProfile:
+      "Uomo di 63 anni, senza patologie neurologiche note. Da circa 6–8 mesi riferisce tremore a riposo alla mano destra, che diminuisce con il movimento volontario e aumenta in situazioni di stress. Riferisce bradicinesia, maggiore lentezza nell'allacciarsi i bottoni, nel vestirsi e nell'alzarsi dalla sedia. La moglie nota riduzione della mimica facciale e passo più corto con tendenza a trascinare il piede destro. Nessuna storia di ictus, traumi cranici maggiori o esposizione nota a neurotossine. Non familiarità diretta per malattia di Parkinson, ma per altri disturbi neurologici in età avanzata.",
+    physicalExam:
+      "Parametri vitali: PA 130/80 mmHg, FC 76 bpm, FR 14 atti/min, SpO2 99% in aria ambiente, temperatura 36,6°C. Esame neurologico: tremore a riposo a bassa frequenza tipo ‘contar monete’ prevalente alla mano destra, che si riduce con il movimento volontario e scompare nel sonno. Bradicinesia con rallentamento nell'esecuzione di movimenti alternati rapidi (test di pronosupinazione e tapping delle dita). Rigidità plastica (a ruota dentata) agli arti superiori, più marcata a destra. Lievi alterazioni della postura con flessione del tronco in avanti e riduzione del movimento pendolare del braccio destro durante la marcia. Riflessi osteotendinei nei limiti, nessun deficit di forza o sensibilità focale.",
+    truth: {
+      correctDiagnosis:
+        "Malattia di Parkinson all'esordio con tremore a riposo unilaterale, bradicinesia e rigidità",
+      mandatoryQuestions: [
+        "tempo di esordio e progressione del tremore e della lentezza motoria",
+        "lato prevalente dei sintomi motori e presenza di asimmetria",
+        "presenza di rigidità, disturbi della marcia, cadute o instabilità posturale",
+        "uso di farmaci che possono indurre parkinsonismo (neurolettici, antiemetici dopamino-bloccanti)",
+        "presenza di sintomi non motori (iposmia, stipsi, disturbi del sonno, depressione)",
+        "storia familiare di disturbi del movimento o patologie neurodegenerative",
+      ],
+      requiredExams: [
+        "Valutazione neurologica specialistica con applicazione dei criteri diagnostici MDS per malattia di Parkinson",
+        "TC o RM encefalo per escludere lesioni strutturali secondarie se indicato",
+        "Valutazione delle comorbilità internistiche prima di eventuale terapia dopaminergica",
+        "Eventuale DAT-SPECT in casi selezionati con diagnosi incerta",
+      ],
+      unnecessaryExams: [
+        "TC o RM encefalo ripetute in assenza di modifiche cliniche",
+        "Esami di laboratorio estesi senza indicazione (markers tumorali, autoanticorpi non mirati)",
+      ],
+      legalReference:
+        "Linee guida per la diagnosi di malattia di Parkinson: un corretto inquadramento precoce consente trattamento sintomatico e counselling adeguato; errori grossolani di diagnosi differenziale (es. confusione con tremore essenziale senza valutazione neurologica specialistica) possono configurare ritardo diagnostico con impatto sulla qualità di vita del paziente.",
+    },
+  },
+  {
+    id: "emergenza-10-shock-settico",
+    specialty: "Emergenza",
+    patientName: "Stefano",
+    patientAge: 67,
+    patientSex: "M",
+    initialMessage:
+      "Dottore, da due giorni ho febbre alta e oggi mi sento molto confuso e debole, mi gira la testa quando mi alzo dal letto.",
+    patientProfile:
+      "Uomo di 67 anni, diabetico e iperteso, con recente infezione urinaria trattata in modo incompleto. Da 48 ore febbre alta con brividi, progressiva astenia e riduzione dell'introito di liquidi. Da alcune ore comparsa di stato confusionale, oliguria e sensazione di ‘battito accelerato’. All’arrivo in PS appare ipoteso, tachicardico, sudato freddo, con estremità fredde e marezzate. Sospetto focolaio urinario o addominale, nessuna terapia antibiotica efficace nelle ultime 24 ore.",
+    physicalExam:
+      "Parametri vitali: PA 80/45 mmHg, FC 122 bpm, FR 26 atti/min, SpO2 93% in aria ambiente, temperatura 38,9°C. Stato generale: paziente soporoso ma risvegliabile, Glasgow 14, sudorazione fredda, estremità fredde, riempimento capillare rallentato. Cute marezzata. Addome: moderatamente dolente in ipogastrio e fossa lombare destra senza segni di peritonite franca. Esame cardiopolmonare: toni tachicardici, murmure vescicolare conservato con respiro tachipnoico. Diuresi molto ridotta riferita nelle ultime 12 ore.",
+    truth: {
+      correctDiagnosis:
+        "Shock settico in paziente con sospetta origine urinaria/addominale e ipotensione refrattaria",
+      mandatoryQuestions: [
+        "durata di febbre, brividi e sede dei sintomi iniziali (urinari, respiratori, addominali)",
+        "quantità di urine nelle ultime 24 ore (oliguria/anuria)",
+        "assunzione recente di antibiotici, tipo, dose e durata",
+        "patologie croniche associate (diabete, cardiopatie, immunodeficienze)",
+        "eventuali procedure invasive recenti (cateteri, interventi chirurgici)",
+      ],
+      requiredExams: [
+        "Emogasanalisi arteriosa con lattati",
+        "Emocromo, indici di flogosi, funzionalità renale ed epatica, coagulazione",
+        "Emocolture e urinocoltura prima di antibiotico, se possibile senza ritardo significativo",
+        "Ecografia point-of-care o TC mirata in base al sospetto di focolaio",
+        "Monitoraggio intensivo in area critica con valutazione per supporto vasopressorio",
+      ],
+      unnecessaryExams: [
+        "TC Total Body non mirata che ritardi la somministrazione di antibiotico e fluidoterapia",
+        "Esami radiologici ripetuti senza finalità decisionale chiara nelle prime ore",
+      ],
+      legalReference:
+        "Gestione dello shock settico: le linee guida internazionali (es. Surviving Sepsis Campaign) e i percorsi tempo-dipendenti nazionali richiedono avvio entro 1 ora di antibiotico adeguato, fluidoterapia aggressiva e misurazione dei lattati; ritardi ingiustificati configurano elevato rischio di responsabilità professionale ai sensi della Legge 24/2017.",
+    },
+  },
+  {
+    id: "emergenza-11-chetoacidosi-diabetica",
+    specialty: "Emergenza",
+    patientName: "Marta",
+    patientAge: 21,
+    patientSex: "F",
+    initialMessage:
+      "Dottore, da qualche giorno bevo e urino tantissimo, ho mal di pancia forte, mi sento svenire e il respiro è molto pesante.",
+    patientProfile:
+      "Giovane donna di 21 anni con diabete mellito di tipo 1 noto dall’adolescenza, aderenza discontinua alla terapia insulinica. Da 3–4 giorni poliuria marcata, polidipsia, calo ponderale recente. Da 24 ore nausea, vomito ripetuto, dolore addominale e respiro frequente e profondo. I familiari riferiscono alito con odore di frutta matura. Nessun focolaio infettivo chiaro ma recente episodio influenzale.",
+    physicalExam:
+      "Parametri vitali: PA 95/60 mmHg, FC 118 bpm, FR 30 atti/min con respiro di Kussmaul, SpO2 97% in aria ambiente, temperatura 37,5°C. Stato generale: paziente vigile ma rallentata, mucose molto secche, turgore cutaneo ridotto. Alito acetonemico evidente. Addome diffusamente dolente alla palpazione, ma senza segni di peritonite. Estremità fredde, riempimento capillare rallentato. Nessun deficit neurologico focale.",
+    truth: {
+      correctDiagnosis:
+        "Chetoacidosi diabetica (DKA) severa in paziente con diabete di tipo 1",
+      mandatoryQuestions: [
+        "schema insulinico abituale e aderenza alla terapia negli ultimi giorni",
+        "valori glicemici domiciliari recenti e presenza di chetonuria/chetonemia nota",
+        "presenza di nausea, vomito, dolore addominale e riduzione dell'introito di liquidi",
+        "eventuali fattori scatenanti (infezioni, stress fisici, sospensione di insulina)",
+        "episodi precedenti di DKA e modalità di gestione",
+      ],
+      requiredExams: [
+        "Glicemia immediata capillare e venosa",
+        "Emogasanalisi arteriosa (pH, bicarbonati, lattati)",
+        "Corpi chetonici su sangue/urine",
+        "Elettroliti con particolare attenzione al potassio, azotemia e creatinina",
+        "Monitoraggio elettrocardiografico e frequente rivalutazione dei parametri vitali",
+      ],
+      unnecessaryExams: [
+        "TC Addome in assenza di segni di addome acuto chirurgico",
+        "RX Torace routinario se non sospetto focolaio infettivo respiratorio",
+      ],
+      legalReference:
+        "Gestione della chetoacidosi diabetica: la correzione rapida ma controllata della disidratazione, dell'acidosi e degli squilibri elettrolitici è obbligo assistenziale; errori grossolani nella gestione del potassio o ritardi nella somministrazione di insulina in infusione possono configurare responsabilità per eventi avversi gravi.",
+    },
+  },
+  {
+    id: "emergenza-12-meningite-batterica-acuta",
+    specialty: "Emergenza",
+    patientName: "Claudia",
+    patientAge: 44,
+    patientSex: "F",
+    initialMessage:
+      "Dottore, da ieri ho una febbre altissima, un mal di testa insopportabile e la luce mi dà molto fastidio. Mi fa male anche il collo quando provo a piegarlo.",
+    patientProfile:
+      "Donna di 44 anni, precedentemente sana, esordio da 24 ore con febbre elevata, cefalea intensa diffusa, nausea e vomito. Riferisce fotofobia marcata e dolore alla flessione del collo. All’arrivo in PS appare sofferente, sudata, con rigidità nucale evidente. Non recente trauma cranico, non uso di anticoagulanti. Non viaggi internazionali recenti, ma esposizione a ambiente comunitario (insegnante).",
+    physicalExam:
+      "Parametri vitali: PA 115/70 mmHg, FC 110 bpm, FR 24 atti/min, SpO2 96% in aria ambiente, temperatura 39,5°C. Stato generale: paziente vigile ma rallentata, risponde lentamente alle domande. Rigidità nucale marcata, segni di Kernig e Brudzinski positivi. Non deficit neurologici focali evidenti agli arti, ma fotofobia intensa. Torace e addome senza reperti patologici acuti. Cute senza petecchie diffuse al momento, ma alcune macchie eritematose agli arti inferiori.",
+    truth: {
+      correctDiagnosis:
+        "Sospetta meningite batterica acuta in adulta con febbre, cefalea intensa e segni meningei",
+      mandatoryQuestions: [
+        "durata di febbre, cefalea e comparsa dei segni meningei",
+        "eventuali contatti con casi noti di meningite o soggiorni in comunità ad alta densità",
+        "uso di antibiotici nelle ultime 48–72 ore",
+        "stato vaccinale per meningococco, pneumococco e Haemophilus",
+        "presenza di deficit neurologici focali, crisi epilettiche o alterazione del livello di coscienza",
+      ],
+      requiredExams: [
+        "Emocromo, indici di flogosi, funzionalità renale ed epatica, coagulazione",
+        "TC Encefalo prima della rachicentesi se indicato (es. segni di ipertensione endocranica, deficit focali)",
+        "Rachicentesi con esame del liquido cerebrospinale (citologia, biochimica, coltura, PCR)",
+        "Emocolture prima dell'antibiotico se possibile senza ritardo",
+        "Monitoraggio intensivo dei parametri vitali e valutazione per ricovero in area ad alta intensità di cura",
+      ],
+      unnecessaryExams: [
+        "TC/RM ripetute non mirate che ritardano la rachicentesi e la terapia antibiotica",
+        "Esami radiologici non correlati (RX Colonna, RX Arti) in assenza di traumi",
+      ],
+      legalReference:
+        "Gestione della meningite batterica acuta: è fondamentale non ritardare l’avvio di terapia antibiotica empirica ad ampio spettro e la rachicentesi (se non controindicata). Ritardi ingiustificati nella diagnosi e nel trattamento possono configurare elevata responsabilità professionale ai sensi della Legge Gelli-Bianco.",
     },
   },
 ];

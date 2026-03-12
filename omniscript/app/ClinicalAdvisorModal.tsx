@@ -9,7 +9,7 @@ interface ClinicalAdvisorModalProps {
 }
 
 export function ClinicalAdvisorModal({ open, onAccept }: ClinicalAdvisorModalProps) {
-  const [timeLeft, setTimeLeft] = useState(15);
+  const [timeLeft, setTimeLeft] = useState(4);
 
   useEffect(() => {
     if (!open || timeLeft <= 0) return;
@@ -37,6 +37,10 @@ export function ClinicalAdvisorModal({ open, onAccept }: ClinicalAdvisorModalPro
         </p>
 
         <p className="mb-4 text-slate-200 leading-relaxed">
+          OmniScript simula scenari basati sull&apos;Evidence-Based Medicine (EBM) e sulle Linee Guida riconosciute dal Ministero della Salute e dall&apos;Istituto Superiore di Sanit&agrave; (ISS), ai sensi della Legge 24/2017.
+        </p>
+
+        <p className="mb-4 text-slate-200 leading-relaxed">
           OmniScript ha uno scopo ESCLUSIVAMENTE FORMATIVO e didattico per professionisti sanitari o studenti. Non è un dispositivo medico e non deve mai essere utilizzato per prendere decisioni cliniche su pazienti reali.
         </p>
 
@@ -54,9 +58,7 @@ export function ClinicalAdvisorModal({ open, onAccept }: ClinicalAdvisorModalPro
               : "bg-gradient-to-r from-cyan-600 to-blue-600 text-white hover:shadow-[0_0_20px_rgba(0,180,216,0.5)]"
           }`}
         >
-          {timeLeft > 0
-            ? `Lettura obbligatoria... (${timeLeft}s)`
-            : "Dichiaro di aver letto e compreso - Accedi alla Simulazione"}
+          {timeLeft > 0 ? `Lettura obbligatoria... (${timeLeft}s)` : "Chiudi"}
         </button>
       </div>
     </div>
