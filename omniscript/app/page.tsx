@@ -10,7 +10,7 @@ import {
   ResponsiveContainer as RadarResponsiveContainer,
   Tooltip as RadarTooltip,
 } from "recharts";
-import { Activity, ChevronUp, Clock, FilePlus, FileText, Lightbulb, Lock, Minimize2, Radiation, RefreshCw, ShieldAlert, Stethoscope, Syringe, UserCircle, X, Users } from "lucide-react";
+import { Activity, ChevronUp, Clock, FilePlus, FileText, Home, Lightbulb, Lock, Minimize2, Radiation, RefreshCw, ShieldAlert, Stethoscope, Syringe, UserCircle, X, XCircle, Users } from "lucide-react";
 import { ClinicalAdvisorModal } from "./ClinicalAdvisorModal";
 import { AccountDashboard, saveSimulationToHistoryForUser, initializeUserProfile } from "./AccountDashboard";
 import { CLINICAL_CASES, type ClinicalCase } from "./cases";
@@ -29,6 +29,7 @@ const GLASS_NAVY = "rgba(0, 27, 61, 0.7)";
 
 const STORAGE_USERS = "omniscript-users";
 const STORAGE_ACTIVE_USER = "omniscript-active-user";
+const STORAGE_SESSION_PREFIX = "omniscript-session-data-";
 const MASTER_PIN_SESSION_KEY = "omniscript-master-pin-authorized";
 
 const DIAGNOSTIC_STOP_WORDS = new Set([
@@ -286,6 +287,7 @@ export default function MedicalChat() {
   const [currentStep, setCurrentStep] = useState<'chat' | 'hypothesis' | 'results' | 'evaluation'>('chat');
   const [currentStepStart, setCurrentStepStart] = useState<number | null>(null);
   const [efficiencyScore, setEfficiencyScore] = useState<number | null>(null);
+  const [users, setUsers] = useState<OmniUser[]>([]);
   const [currentUserNickname, setCurrentUserNickname] = useState<string | null>(null);
   const [authMode, setAuthMode] = useState<"login" | "register">("login");
   const [authNickname, setAuthNickname] = useState("");
@@ -319,11 +321,11 @@ export default function MedicalChat() {
     }
     if (typeof window === "undefined") return;
     try {
-      const raw = localStorage.getItem(STORAGE_USERS);
-      const users: OmniUser[] = raw ? JSON.parse(raw) : [];
+      // Usa sempre il database utenti esistente, inizializzato da localStorage
+      const existingUsers = users;
       if (authMode === "register") {
         const normalizedNickname = trimmedNickname.toLowerCase();
-        const exists = users.some(
+        const exists = existingUsers.some(
           (u) => u.nickname.trim().toLowerCase() === normalizedNickname
         );
         if (exists) {
@@ -334,21 +336,22 @@ export default function MedicalChat() {
           setAuthIsProcessing(false);
           return;
         }
-        const nextUsers: OmniUser[] = [
-          ...users,
-          { nickname: trimmedNickname, password: trimmedPassword },
-        ];
+        const nextUsers: OmniUser[] = [...existingUsers];
+        nextUsers.push({ nickname: trimmedNickname, password: trimmedPassword });
+        setUsers(nextUsers);
         localStorage.setItem(STORAGE_USERS, JSON.stringify(nextUsers));
         initializeUserProfile(trimmedNickname);
         localStorage.setItem(STORAGE_ACTIVE_USER, trimmedNickname);
         setCurrentUserNickname(trimmedNickname);
+        // Reset totale della sessione per il nuovo utente
+        handleResetSimulation();
         setAuthMessage("Creazione profilo in corso...");
         setTimeout(() => {
           setBootPhase("splash");
           setAuthIsProcessing(false);
         }, 1000);
       } else {
-        const found = users.find(
+        const found = existingUsers.find(
           (u) => u.nickname === trimmedNickname && u.password === trimmedPassword
         );
         if (!found) {
@@ -358,6 +361,8 @@ export default function MedicalChat() {
         }
         localStorage.setItem(STORAGE_ACTIVE_USER, trimmedNickname);
         setCurrentUserNickname(trimmedNickname);
+        // Reset totale della sessione al login di un utente esistente
+        handleResetSimulation();
         setAuthMessage("Accesso in corso...");
         setTimeout(() => {
           setBootPhase("splash");
@@ -378,6 +383,21 @@ export default function MedicalChat() {
 
   useEffect(() => {
     setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      // Inizializzazione intelligente del database utenti dal localStorage
+      const storedUsersRaw = localStorage.getItem(STORAGE_USERS);
+      const storedUsers: OmniUser[] = storedUsersRaw
+        ? JSON.parse(storedUsersRaw)
+        : JSON.parse("[]");
+      setUsers(storedUsers);
+    } catch {
+      // ignore parse / storage errors, fallback al database vuoto
+      setUsers([]);
+    }
   }, []);
 
   useEffect(() => {
@@ -1644,9 +1664,25 @@ const detectClinicalActionsFromText = (rawText: string): DiagnosticAction[] => {
   );
 
   const handleLogoutUser = () => {
+    const prevNickname = currentUserNickname;
     if (typeof window !== "undefined") {
       localStorage.removeItem(STORAGE_ACTIVE_USER);
+      if (prevNickname) {
+        const sessionKey = `${STORAGE_SESSION_PREFIX}${prevNickname}`;
+        try {
+          localStorage.removeItem(sessionKey);
+        } catch {
+          // ignore
+        }
+        try {
+          sessionStorage.removeItem(sessionKey);
+        } catch {
+          // ignore
+        }
+      }
     }
+    // Reset totale della sessione al cambio utente
+    handleResetSimulation();
     setCurrentUserNickname(null);
     setBootPhase("auth");
   };
@@ -2087,9 +2123,18 @@ const detectClinicalActionsFromText = (rawText: string): DiagnosticAction[] => {
                       Scenario Clinico
                     </h2>
                   </div>
-                  <span className="text-xs text-slate-400">
-                    Caso in simulazione
-                  </span>
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs text-slate-400">
+                      Caso in simulazione
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setShowScenarioModal(false)}
+                      className="text-slate-400 hover:text-slate-200 transition-colors"
+                    >
+                      <XCircle className="h-5 w-5" />
+                    </button>
+                  </div>
                 </div>
                 <div className="px-5 py-4 space-y-3 max-h-[60vh] overflow-y-auto custom-scrollbar text-base leading-relaxed">
                   <div className="flex flex-col gap-2">
@@ -2186,10 +2231,42 @@ const detectClinicalActionsFromText = (rawText: string): DiagnosticAction[] => {
 
         <main className="mx-auto mt-16 flex max-w-6xl flex-col lg:flex-row gap-4 p-4 lg:p-8 pt-16">
           <section className={`flex flex-1 flex-col rounded-3xl border ${BORDER_ACCENT} ${PANEL_BG} backdrop-blur-xl shadow-[0_0_30px_rgba(15,23,42,0.35)] relative`}>
-            <div className={`p-4 border-b ${BORDER_ACCENT} flex justify-between items-center`}>
+            <div className={`p-4 border-b ${BORDER_ACCENT} flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between`}>
               <h2 className="text-2xl font-medium text-slate-100">
-                {phase === "hypothesis" ? "Formulazione Ipotesi e Prescrizioni" : phase === "results" ? "Esiti e Diagnosi Finale" : phase === "evaluation" ? "Report di Fine Turno" : "Triage Pronto Soccorso"}
+                {phase === "chat"
+                  ? "Chat (Anamnesi)"
+                  : phase === "hypothesis"
+                  ? "Esame Obiettivo e Prescrizioni"
+                  : phase === "results"
+                  ? "Diagnostica: Esami e Referti"
+                  : "Prescrizione Finale e Report"}
               </h2>
+              <nav className="flex flex-wrap gap-1.5 sm:gap-2 text-xs sm:text-sm">
+                {[
+                  { id: "chat" as const, label: "Chat (Anamnesi)" },
+                  { id: "hypothesis" as const, label: "Esame Obiettivo" },
+                  { id: "results" as const, label: "Diagnostica" },
+                  { id: "evaluation" as const, label: "Prescrizione / Report" },
+                ].map((tab) => {
+                  const isActive = phase === tab.id;
+                  return (
+                    <button
+                      key={tab.id}
+                      type="button"
+                      onClick={() => advancePhase(tab.id)}
+                      className={[
+                        "px-3 py-1.5 rounded-full border transition-all duration-200 font-medium",
+                        "backdrop-blur-md",
+                        isActive
+                          ? "bg-cyan-500/90 text-slate-950 border-cyan-300 shadow-[0_0_10px_rgba(34,211,238,0.45)]"
+                          : "bg-slate-900/60 text-slate-300 border-slate-700/60 hover:border-cyan-700/60 hover:text-cyan-200",
+                      ].join(" ")}
+                    >
+                      {tab.label}
+                    </button>
+                  );
+                })}
+              </nav>
             </div>
 
             {/* FASE 1: Chat (Anamnesi) */}
@@ -2262,6 +2339,14 @@ const detectClinicalActionsFromText = (rawText: string): DiagnosticAction[] => {
             {/* FASE 2: Formulazione Ipotesi e Prescrizioni */}
             {phase === "hypothesis" && (
               <div className="flex-1 flex flex-col overflow-hidden p-4 space-y-4">
+                <button
+                  type="button"
+                  onClick={() => advancePhase("chat")}
+                  className="inline-flex items-center gap-1 text-sm text-cyan-300 hover:text-cyan-100 transition-colors mb-1"
+                >
+                  <span className="text-base">←</span>
+                  <span>Torna al colloquio col paziente</span>
+                </button>
                 <h3 className="text-lg font-medium text-slate-100 border-b border-slate-700/50 pb-2">
                   Formulazione Ipotesi e Prescrizioni
                 </h3>
@@ -2339,6 +2424,14 @@ const detectClinicalActionsFromText = (rawText: string): DiagnosticAction[] => {
             {/* FASE 3: Esiti e Diagnosi Finale */}
             {phase === "results" && (
               <div className="flex-1 overflow-y-auto p-4 space-y-4 min-h-[400px] max-h-[500px] custom-scrollbar text-base leading-relaxed">
+                <button
+                  type="button"
+                  onClick={() => advancePhase("chat")}
+                  className="inline-flex items-center gap-1 text-sm text-cyan-300 hover:text-cyan-100 transition-colors mb-1"
+                >
+                  <span className="text-base">←</span>
+                  <span>Torna al colloquio col paziente</span>
+                </button>
                 <div className={`rounded-2xl border ${BORDER_ACCENT} bg-[#111827]/70 p-4`}>
                   <p className="text-xs font-medium text-slate-400 mb-1">Ipotesi formulata</p>
                   <p className="text-slate-200 font-medium whitespace-pre-wrap">{currentHypothesis || "—"}</p>
@@ -2382,7 +2475,17 @@ const detectClinicalActionsFromText = (rawText: string): DiagnosticAction[] => {
 
             {phase === "evaluation" && (
               <div className="flex-1 overflow-y-auto p-4 flex items-center justify-center text-slate-400">
-                Turno concluso. Consulta il referto di fine turno e la dashboard.
+                <div className="flex flex-col items-center gap-3 text-center">
+                  <button
+                    type="button"
+                    onClick={() => advancePhase("chat")}
+                    className="inline-flex items-center gap-1 text-sm text-cyan-300 hover:text-cyan-100 transition-colors"
+                  >
+                    <span className="text-base">←</span>
+                    <span>Torna al colloquio col paziente</span>
+                  </button>
+                  <p>Turno concluso. Consulta il referto di fine turno e la dashboard.</p>
+                </div>
               </div>
             )}
 
@@ -2488,6 +2591,30 @@ const detectClinicalActionsFromText = (rawText: string): DiagnosticAction[] => {
               </div>
             </div>
 
+            {/* PANNELLO EVIDENZE CLINICHE (profilo + E.O.) */}
+            <div className="rounded-2xl border border-slate-800/80 bg-slate-950/60 p-3 space-y-2">
+              <p className="text-[11px] font-mono uppercase tracking-[0.18em] text-slate-500">
+                Evidenze Cliniche
+              </p>
+              <div className="space-y-1">
+                <p className="text-xs font-semibold text-slate-300">
+                  Profilo / Anamnesi sintetica
+                </p>
+                <p className="text-xs text-slate-400 leading-relaxed line-clamp-4">
+                  {activeCase.patientProfile}
+                </p>
+              </div>
+              <div className="pt-1 space-y-1">
+                <p className="text-xs font-semibold text-slate-300">
+                  Esame Obiettivo
+                </p>
+                <p className="text-xs text-slate-400 leading-relaxed max-h-32 overflow-y-auto custom-scrollbar">
+                  {hasPerformedPhysicalExam
+                    ? activeCase.physicalExam
+                    : "Non ancora eseguito. Usa il comando \"Esegui Esame Obiettivo\" nel menu Azioni Cliniche per registrare i reperti e valorizzare l'accuratezza clinica."}
+                </p>
+              </div>
+            </div>
 
             <div className="space-y-4 text-base leading-relaxed">
               <ScoreBar
@@ -3007,6 +3134,18 @@ const detectClinicalActionsFromText = (rawText: string): DiagnosticAction[] => {
                   >
                     <Minimize2 className="h-4 w-4" />
                     Chiudi
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowFinalReportModal(false);
+                      setShowAccountDashboard(true);
+                      handleResetSimulation();
+                    }}
+                    className="inline-flex items-center gap-2 rounded-full px-5 py-2 text-sm font-medium text-slate-950 bg-gradient-to-r from-emerald-500/90 to-cyan-500/90 hover:from-emerald-400 hover:to-cyan-400 hover:shadow-[0_0_14px_rgba(16,185,129,0.45)] shadow-[0_0_10px_rgba(16,185,129,0.3)] transition-all duration-300"
+                  >
+                    <Home className="h-4 w-4" />
+                    Torna alla Dashboard
                   </button>
                   <button
                     type="button"
