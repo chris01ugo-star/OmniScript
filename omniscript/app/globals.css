@@ -1,0 +1,127 @@
+@import "tailwindcss";
+
+:root {
+  --background: #0a1929;
+  --foreground: #f8fafc;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+html {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  background-color: #0a1929;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  background-color: #0a1929;
+  color: var(--foreground);
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  line-height: 1.6;
+}
+
+/* Alert Pronto Soccorso: pulsazione finestra scenario */
+@keyframes scenario-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(0, 180, 216, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 24px 8px rgba(0, 180, 216, 0.25);
+  }
+}
+
+/* Bordo rosso lampeggiante */
+@keyframes border-flash {
+  0%, 100% {
+    border-top-color: rgba(239, 68, 68, 0.9);
+    opacity: 1;
+  }
+  50% {
+    border-top-color: rgba(239, 68, 68, 0.3);
+    opacity: 0.7;
+  }
+}
+
+/* Banner "Nuovo paziente" lampeggiante */
+@keyframes banner-blink {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+.scenario-pulse-anim {
+  animation: scenario-pulse 1.5s ease-in-out infinite;
+}
+
+.scenario-border-flash {
+  animation: border-flash 0.8s ease-in-out infinite;
+}
+
+.banner-blink-anim {
+  animation: banner-blink 1s ease-in-out infinite;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Digital Heartbeat: tracciato ECG stilizzato (stroke-dashoffset) */
+@keyframes ecg-draw {
+  0% {
+    stroke-dashoffset: 400;
+    opacity: 0.3;
+  }
+  15% {
+    stroke-dashoffset: 280;
+    opacity: 0.8;
+  }
+  40% {
+    stroke-dashoffset: 120;
+    opacity: 1;
+  }
+  70% {
+    stroke-dashoffset: 0;
+    opacity: 0.9;
+  }
+  85% {
+    stroke-dashoffset: 0;
+    opacity: 0.4;
+  }
+  100% {
+    stroke-dashoffset: -400;
+    opacity: 0.2;
+  }
+}
+
+.ecg-path {
+  animation: ecg-draw 2.8s ease-in-out infinite;
+}
+
+/* Glow finestra in trascinamento */
+.window-glow-dragging {
+  box-shadow: 0 0 32px 8px rgba(0, 180, 216, 0.25), 0 0 64px 16px rgba(114, 221, 247, 0.12);
+}
