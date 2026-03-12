@@ -13,7 +13,7 @@ import {
 import { Activity, CheckCircle2, ChevronUp, Clock, FilePlus, FileText, Home, Lightbulb, Lock, Minimize2, Radiation, RefreshCw, ShieldAlert, Stethoscope, Syringe, UserCircle, X, XCircle, Users } from "lucide-react";
 import { ClinicalAdvisorModal } from "./ClinicalAdvisorModal";
 import { AccountDashboard, saveSimulationToHistoryForUser, initializeUserProfile } from "./AccountDashboard";
-import { CLINICAL_CASES, type ClinicalCase } from "./cases";
+import { CLINICAL_CASES, type ClinicalCase, type ClinicalCaseTruth } from "./cases";
 import { MasterPinGate } from "./MasterPinGate";
 import { AnatomicalMap, KEY_HOTSPOT_IDS } from "./AnatomicalMap";
 
@@ -194,6 +194,100 @@ const IMAGING_EXAMS = [
   "Scintigrafia ossea total body",
   "PET-TC total body",
 ].sort((a, b) => a.localeCompare(b));
+type EndoscopyCategory = "digestiva" | "respiratoria";
+
+interface EndoscopyExamMeta {
+  name: string;
+  category: EndoscopyCategory;
+  tempo: "breve" | "medio" | "lungo";
+  invasivita: "bassa" | "media" | "alta";
+  costo: "basso" | "medio" | "alto";
+}
+
+const ENDOSCOPY_EXAMS: EndoscopyExamMeta[] = [
+  // Endoscopia Digestiva
+  {
+    name: "EGDS (Endoscopia digestiva alta)",
+    category: "digestiva",
+    tempo: "medio",
+    invasivita: "media",
+    costo: "medio",
+  },
+  {
+    name: "Colonscopia",
+    category: "digestiva",
+    tempo: "lungo",
+    invasivita: "alta",
+    costo: "alto",
+  },
+  {
+    name: "CPRE (Colangiopancreatografia retrograda endoscopica)",
+    category: "digestiva",
+    tempo: "lungo",
+    invasivita: "alta",
+    costo: "alto",
+  },
+  {
+    name: "EUS (Ecoendoscopia)",
+    category: "digestiva",
+    tempo: "medio",
+    invasivita: "media",
+    costo: "alto",
+  },
+  {
+    name: "Videocapsula endoscopica",
+    category: "digestiva",
+    tempo: "lungo",
+    invasivita: "bassa",
+    costo: "alto",
+  },
+  {
+    name: "Enteroscopia",
+    category: "digestiva",
+    tempo: "lungo",
+    invasivita: "alta",
+    costo: "alto",
+  },
+  // Endoscopia Respiratoria
+  {
+    name: "Broncoscopia",
+    category: "respiratoria",
+    tempo: "medio",
+    invasivita: "alta",
+    costo: "medio",
+  },
+  {
+    name: "BAL (Lavaggio broncoalveolare)",
+    category: "respiratoria",
+    tempo: "medio",
+    invasivita: "alta",
+    costo: "alto",
+  },
+  {
+    name: "EBUS (Endobronchial Ultrasound)",
+    category: "respiratoria",
+    tempo: "medio",
+    invasivita: "media",
+    costo: "alto",
+  },
+];
+
+const ENDOSCOPY_DIGESTIVE_EXAMS = ENDOSCOPY_EXAMS.filter(
+  (e) => e.category === "digestiva"
+).map((e) => e.name);
+
+const ENDOSCOPY_RESPIRATORY_EXAMS = ENDOSCOPY_EXAMS.filter(
+  (e) => e.category === "respiratoria"
+).map((e) => e.name);
+
+const ENDOSCOPY_METADATA: Record<string, EndoscopyExamMeta> = ENDOSCOPY_EXAMS.reduce(
+  (acc, exam) => {
+    acc[exam.name] = exam;
+    return acc;
+  },
+  {} as Record<string, EndoscopyExamMeta>
+);
+
 const CONSULTATIONS = [
   "Cardiologia", "Neurologia", "Neurochirurgia", "Ortopedia e Traumatologia", 
   "Rianimazione / Terapia Intensiva", "Geriatria", "Pneumologia", 
@@ -324,6 +418,8 @@ export default function MedicalChat() {
   const [showBloodMenu, setShowBloodMenu] = useState(false);
   const [showImagingMenu, setShowImagingMenu] = useState(false);
   const [showConsultMenu, setShowConsultMenu] = useState(false);
+  const [showEndoscopyDigestiveMenu, setShowEndoscopyDigestiveMenu] = useState(false);
+  const [showEndoscopyRespiratoryMenu, setShowEndoscopyRespiratoryMenu] = useState(false);
   const [showRepartoSelector, setShowRepartoSelector] = useState(false);
   const [legalAlert, setLegalAlert] = useState<{ type: "minor" | "pregnancy"; examName: string; category: string } | null>(null);
   const [legalInfractions, setLegalInfractions] = useState<string[]>([]);
@@ -332,6 +428,7 @@ export default function MedicalChat() {
     lungs: [],
     ecg: [],
   }));
+  const [physicalExamScoreApplied, setPhysicalExamScoreApplied] = useState(false);
 
   // Gestione audio clinico (auscultazione + ECG)
   const auscultationAudiosRef = useRef<Record<string, HTMLAudioElement> | null>(null);
@@ -728,7 +825,12 @@ const tokenizeAndFilter = (text: string): string[] => {
   return tokens.filter((t) => t && !DIAGNOSTIC_STOP_WORDS.has(t));
 };
 
-type DiagnosticCategory = "sangue" | "imaging" | "consulenza";
+type DiagnosticCategory =
+  | "sangue"
+  | "imaging"
+  | "consulenza"
+  | "endoscopiaDigestiva"
+  | "endoscopiaRespiratoria";
 
 interface DiagnosticAction {
   category: DiagnosticCategory;
@@ -761,6 +863,16 @@ const buildDiagnosticMap = (): Record<string, DiagnosticAction> => {
   CONSULTATIONS.forEach((exam) => {
     const tokens = tokenizeAndFilter(exam);
     tokens.forEach((token) => register(token, "consulenza", exam));
+  });
+
+  ENDOSCOPY_DIGESTIVE_EXAMS.forEach((exam) => {
+    const tokens = tokenizeAndFilter(exam);
+    tokens.forEach((token) => register(token, "endoscopiaDigestiva", exam));
+  });
+
+  ENDOSCOPY_RESPIRATORY_EXAMS.forEach((exam) => {
+    const tokens = tokenizeAndFilter(exam);
+    tokens.forEach((token) => register(token, "endoscopiaRespiratoria", exam));
   });
 
   register("emocromo", "sangue", "Emocromo completo");
@@ -796,6 +908,34 @@ const buildDiagnosticMap = (): Record<string, DiagnosticAction> => {
   register("rachicentesi", "sangue", "Rachicentesi con esame del liquido cerebrospinale");
   register("puntura lombare", "sangue", "Rachicentesi con esame del liquido cerebrospinale");
   register("liquor", "sangue", "Rachicentesi con esame del liquido cerebrospinale");
+
+  // Sinonimi principali per esami endoscopici
+  register("egds", "endoscopiaDigestiva", "EGDS (Endoscopia digestiva alta)");
+  register("gastroscopia", "endoscopiaDigestiva", "EGDS (Endoscopia digestiva alta)");
+  register("endoscopia digestiva alta", "endoscopiaDigestiva", "EGDS (Endoscopia digestiva alta)");
+
+  register("colonscopia", "endoscopiaDigestiva", "Colonscopia");
+  register("colonscopia virtuale", "endoscopiaDigestiva", "Colonscopia");
+
+  register("cpre", "endoscopiaDigestiva", "CPRE (Colangiopancreatografia retrograda endoscopica)");
+  register("colangiopancreatografia", "endoscopiaDigestiva", "CPRE (Colangiopancreatografia retrograda endoscopica)");
+
+  register("eus", "endoscopiaDigestiva", "EUS (Ecoendoscopia)");
+  register("ecoendoscopia", "endoscopiaDigestiva", "EUS (Ecoendoscopia)");
+
+  register("videocapsula", "endoscopiaDigestiva", "Videocapsula endoscopica");
+  register("capsula endoscopica", "endoscopiaDigestiva", "Videocapsula endoscopica");
+
+  register("enteroscopia", "endoscopiaDigestiva", "Enteroscopia");
+
+  register("broncoscopia", "endoscopiaRespiratoria", "Broncoscopia");
+  register("fibrobroncoscopia", "endoscopiaRespiratoria", "Broncoscopia");
+
+  register("bal", "endoscopiaRespiratoria", "BAL (Lavaggio broncoalveolare)");
+  register("lavaggio broncoalveolare", "endoscopiaRespiratoria", "BAL (Lavaggio broncoalveolare)");
+
+  register("ebus", "endoscopiaRespiratoria", "EBUS (Endobronchial Ultrasound)");
+  register("endobronchial ultrasound", "endoscopiaRespiratoria", "EBUS (Endobronchial Ultrasound)");
 
   return map;
 };
@@ -1567,7 +1707,21 @@ const detectClinicalActionsFromText = (rawText: string): DiagnosticAction[] => {
     runLegalEvaluation("Diagnosi Diretta (Azzardo Clinico)", true, totalActions);
   };
 
-  const confirmOrderExam = (category: "sangue" | "imaging" | "consulenza", examName: string) => {
+  const getEndoscopySustainabilityDelta = (examName: string): number => {
+    const meta = ENDOSCOPY_METADATA[examName];
+    if (!meta) return 15;
+    let base = 15;
+    if (meta.costo === "medio") base = 18;
+    if (meta.costo === "alto") base = 22;
+    if (meta.invasivita === "alta") base += 3;
+    if (meta.tempo === "lungo") base += 2;
+    return base;
+  };
+
+  const confirmOrderExam = (
+    category: DiagnosticCategory,
+    examName: string
+  ) => {
     const now = formatTime();
 
     if (category === "imaging" && /contrasto/i.test(examName)) {
@@ -1579,6 +1733,8 @@ const detectClinicalActionsFromText = (rawText: string): DiagnosticAction[] => {
     setShowBloodMenu(false);
     setShowImagingMenu(false);
     setShowConsultMenu(false);
+    setShowEndoscopyDigestiveMenu(false);
+    setShowEndoscopyRespiratoryMenu(false);
     setShowAzioniClinicheModal(false);
     setPrescribedExams((prev) => [...prev, examName]);
     setPrescribedExamsHistory((prev) => [...prev, { name: examName, time: now }]);
@@ -1586,6 +1742,8 @@ const detectClinicalActionsFromText = (rawText: string): DiagnosticAction[] => {
     let prefix = "Richiesta esami del sangue: ";
     if (category === "imaging") prefix = "Richiesta imaging: ";
     if (category === "consulenza") prefix = "Richiedi Consulenza: ";
+    if (category === "endoscopiaDigestiva") prefix = "Richiesta Endoscopia Digestiva: ";
+    if (category === "endoscopiaRespiratoria") prefix = "Richiesta Endoscopia Respiratoria: ";
 
     setMessages((prev) => [...prev, { id: Date.now(), role: "doctor", content: `${prefix}${examName}.`, timestamp: now }]);
 
@@ -1616,6 +1774,9 @@ const detectClinicalActionsFromText = (rawText: string): DiagnosticAction[] => {
         if (category === "sangue") delta = 5;
         else if (category === "imaging") delta = 15;
         else if (category === "consulenza") delta = 10;
+        else if (category === "endoscopiaDigestiva" || category === "endoscopiaRespiratoria") {
+          delta = getEndoscopySustainabilityDelta(examName);
+        }
 
         return {
           ...prev,
@@ -1630,9 +1791,23 @@ const detectClinicalActionsFromText = (rawText: string): DiagnosticAction[] => {
         }));
       }
     }
+
+    // Integrazione risultati predefiniti dal caso clinico (es. reperto endoscopico)
+    const predefinedFinding =
+      (activeCase.truth as ClinicalCaseTruth & { examFindings?: Record<string, string> })
+        .examFindings?.[examName];
+    if (predefinedFinding) {
+      setExamResults((prev) => [
+        ...prev.filter((r) => r.name !== examName),
+        { name: examName, result: predefinedFinding },
+      ]);
+    }
   };
 
-  const handleOrderExam = async (category: "sangue" | "imaging" | "consulenza", examName: string) => {
+  const handleOrderExam = async (
+    category: DiagnosticCategory,
+    examName: string
+  ) => {
     const existingExam = prescribedExamsHistory.find((exam) => exam.name === examName);
     if (existingExam) {
       const confirmed = window.confirm(
@@ -1678,32 +1853,18 @@ const detectClinicalActionsFromText = (rawText: string): DiagnosticAction[] => {
     setShowConsultMenu(false);
     setShowAzioniClinicheModal(false);
     setHasPerformedPhysicalExam(true);
-
-    setMessages((prev) => [
-      ...prev,
-      {
-        id: Date.now(),
-        role: "doctor",
-        content:
-          "Procedo con l'esame obiettivo completo, valutando parametri vitali, cuore, polmoni e stato neurologico.",
-        timestamp: formatTime(),
-      },
-    ]);
   };
 
   useEffect(() => {
     // L'esecuzione dell'esame obiettivo migliora l'accuratezza clinica se ancora bassa
-    const lastDoctorPhysicalExam = messages.findLast?.(
-      (m) => m.role === "doctor" && m.content.toLowerCase().includes("esame obiettivo")
-    );
-
-    if (!lastDoctorPhysicalExam) return;
+    if (!hasPerformedPhysicalExam || physicalExamScoreApplied) return;
 
     setOmniScore((prev) => ({
       ...prev,
       accuratezzaClinica: Math.min(Math.max(prev.accuratezzaClinica, 60), 100),
     }));
-  }, [messages]);
+    setPhysicalExamScoreApplied(true);
+  }, [hasPerformedPhysicalExam, physicalExamScoreApplied]);
   
   const handleCreateCustomCase = (e: FormEvent) => {
     e.preventDefault();
@@ -1863,6 +2024,15 @@ const detectClinicalActionsFromText = (rawText: string): DiagnosticAction[] => {
   };
 
   const handleResetSimulation = () => {
+    try {
+      if (typeof window !== "undefined" && window.localStorage) {
+        window.localStorage.removeItem("current_chat");
+        window.localStorage.removeItem("current_exams");
+      }
+    } catch {
+      // Ignora eventuali errori di accesso a localStorage
+    }
+
     const nextCase = getRandomCase(selectedSpecialty);
     setActiveCase(nextCase);
     setMessages([
@@ -1888,16 +2058,22 @@ const detectClinicalActionsFromText = (rawText: string): DiagnosticAction[] => {
     setUsedKeywords(new Set());
     setShowRepartoSelector(false);
     setShowScenarioModal(true);
-    setPhase('chat');
-    setCurrentHypothesis('');
+    setPhase("chat");
+    setCurrentHypothesis("");
     setExamResults([]);
     setDiagnosisChoice(null);
     setEmergencyStartTime(null);
     setEmergencyElapsedMs(0);
     setEmergencyFinalMs(null);
     setHasPerformedPhysicalExam(false);
+    setPhysicalExamResults({
+      heart: [],
+      lungs: [],
+      ecg: [],
+    });
+    setPhysicalExamScoreApplied(false);
     setStepDurations({ chat: 0, hypothesis: 0, results: 0, evaluation: 0 });
-    setCurrentStep('chat');
+    setCurrentStep("chat");
     setCurrentStepStart(null);
     setEfficiencyScore(null);
     setLegalInfractions([]);
@@ -2320,7 +2496,7 @@ const detectClinicalActionsFromText = (rawText: string): DiagnosticAction[] => {
                 <button
                   type="button"
                   onClick={() => {
-                    confirmOrderExam(legalAlert.category as "sangue" | "imaging" | "consulenza", legalAlert.examName);
+                    confirmOrderExam(legalAlert.category as DiagnosticCategory, legalAlert.examName);
                     setLegalAlert(null);
                   }}
                   className="px-4 py-2 rounded-xl bg-red-600/20 text-red-500 border border-red-500 hover:bg-red-600 hover:text-white transition-colors"
@@ -2379,7 +2555,24 @@ const detectClinicalActionsFromText = (rawText: string): DiagnosticAction[] => {
               <FilePlus className="h-4 w-4" /> Crea Caso
             </button>
             <button
-              onClick={handleResetSimulation}
+              onClick={() => {
+                const hasProgress =
+                  messages.length > 1 ||
+                  prescribedExams.length > 0 ||
+                  examResults.length > 0 ||
+                  finalDiagnosis.trim().length > 0;
+
+                if (
+                  hasProgress &&
+                  !window.confirm(
+                    "Iniziando un nuovo caso, i progressi del paziente attuale verranno persi. Vuoi procedere?"
+                  )
+                ) {
+                  return;
+                }
+
+                handleResetSimulation();
+              }}
               className="group flex items-center gap-2 rounded-full border border-slate-700/50 bg-[#111827]/60 px-3 py-1.5 text-sm text-slate-400 hover:bg-[#111827]/80 hover:border-cyan-900/40 hover:text-cyan-400 transition-all duration-300"
             >
               <RefreshCw className="h-4 w-4" /> Nuovo Caso
@@ -2466,10 +2659,28 @@ const detectClinicalActionsFromText = (rawText: string): DiagnosticAction[] => {
                             timestamp: formatTime(),
                           },
                         ]);
-                        // Cambio scenario: azzera sempre esami prescritti e risultati
+                        // Cambio scenario: azzera sempre esami prescritti, risultati e stato fisico
                         setPrescribedExams([]);
                         setPrescribedExamsHistory([]);
                         setExamResults([]);
+                        setPhysicalExamResults({
+                          heart: [],
+                          lungs: [],
+                          ecg: [],
+                        });
+                        setPhysicalExamScoreApplied(false);
+                        setCurrentHypothesis("");
+                        setFinalDiagnosis("");
+                        setIsSimulationComplete(false);
+                        setHasPerformedPhysicalExam(false);
+                        try {
+                          if (typeof window !== "undefined" && window.localStorage) {
+                            window.localStorage.removeItem("current_chat");
+                            window.localStorage.removeItem("current_exams");
+                          }
+                        } catch {
+                          // ignore
+                        }
                         const normalized = value.toLowerCase();
                         const isEmergencyCategory =
                           normalized.includes("emergenza") ||
@@ -2509,10 +2720,28 @@ const detectClinicalActionsFromText = (rawText: string): DiagnosticAction[] => {
                           timestamp: formatTime(),
                         },
                       ]);
-                      // Nuovo profilo: azzera esami prescritti e risultati
+                      // Nuovo profilo: azzera esami prescritti, risultati e stato fisico
                       setPrescribedExams([]);
                       setPrescribedExamsHistory([]);
                       setExamResults([]);
+                      setPhysicalExamResults({
+                        heart: [],
+                        lungs: [],
+                        ecg: [],
+                      });
+                      setPhysicalExamScoreApplied(false);
+                      setCurrentHypothesis("");
+                      setFinalDiagnosis("");
+                      setIsSimulationComplete(false);
+                      setHasPerformedPhysicalExam(false);
+                      try {
+                        if (typeof window !== "undefined" && window.localStorage) {
+                          window.localStorage.removeItem("current_chat");
+                          window.localStorage.removeItem("current_exams");
+                        }
+                      } catch {
+                        // ignore
+                      }
                     }}
                     className="rounded-full px-5 py-2 text-sm font-medium text-red-50/95 shadow-[0_0_12px_rgba(248,113,113,0.25)] border border-red-800/50 bg-gradient-to-r from-red-600/70 to-orange-600/70 hover:from-red-500/90 hover:to-orange-500/90 hover:shadow-[0_0_18px_rgba(248,113,113,0.4)] transition-all duration-300"
                   >
@@ -2693,69 +2922,74 @@ const detectClinicalActionsFromText = (rawText: string): DiagnosticAction[] => {
                     <span className="font-semibold text-red-300">valutazione incompleta</span> nel report finale.
                   </p>
                 </div>
-                {hasPerformedPhysicalExam || physicalExamResults.heart.length > 0 || physicalExamResults.lungs.length > 0 || physicalExamResults.ecg.length > 0 ? (
-                  <div className="rounded-2xl border border-slate-700/60 bg-slate-800/50 p-3 space-y-2">
-                    <div className="flex items-center justify-between gap-2 mb-1">
-                      <p className="text-xs font-semibold text-slate-100 flex items-center gap-1.5">
-                        <Stethoscope className="h-3.5 w-3.5 text-cyan-300" />
-                        <span>Reperti Esame Obiettivo</span>
-                      </p>
-                    </div>
-                    {physicalExamResults.heart.length === 0 &&
-                    physicalExamResults.lungs.length === 0 &&
-                    physicalExamResults.ecg.length === 0 ? (
-                      <p className="text-xs text-slate-400">
-                        Nessun reperto specifico ancora registrato. Completa l&apos;esame obiettivo per popolare questa sezione.
-                      </p>
-                    ) : (
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs text-slate-200">
-                        {physicalExamResults.heart.length > 0 && (
-                          <div>
-                            <p className="font-semibold text-slate-100 mb-1">Cuore</p>
-                            <ul className="space-y-1">
-                              {physicalExamResults.heart.map((f) => (
-                                <li key={f.id} className="text-[11px] leading-relaxed">
-                                  <span className="font-semibold text-cyan-200">{f.name}:</span>{" "}
-                                  <span className="text-slate-200">{f.result}</span>
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        )}
-                        {physicalExamResults.lungs.length > 0 && (
-                          <div>
-                            <p className="font-semibold text-slate-100 mb-1">Polmoni</p>
-                            <ul className="space-y-1">
-                              {physicalExamResults.lungs.map((f) => (
-                                <li key={f.id} className="text-[11px] leading-relaxed">
-                                  <span className="font-semibold text-cyan-200">{f.name}:</span>{" "}
-                                  <span className="text-slate-200">{f.result}</span>
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        )}
-                        {physicalExamResults.ecg.length > 0 && (
-                          <div>
-                            <p className="font-semibold text-slate-100 mb-1">ECG / Parametri</p>
-                            <ul className="space-y-1">
-                              {physicalExamResults.ecg.map((f) => (
-                                <li key={f.id} className="text-[11px] leading-relaxed">
-                                  <span className="font-semibold text-cyan-200">{f.name}:</span>{" "}
-                                  <span className="text-slate-200">{f.result}</span>
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        )}
-                      </div>
-                    )}
+                <div className="rounded-2xl border border-slate-700/60 bg-slate-900/50 p-3 space-y-2">
+                  <div className="flex items-center justify-between gap-2 mb-1">
+                    <p className="text-xs font-semibold text-slate-100 flex items-center gap-1.5">
+                      <Stethoscope className="h-3.5 w-3.5 text-cyan-300" />
+                      <span>Reperti Esame Obiettivo</span>
+                    </p>
                   </div>
-                ) : (
-                  <p className="text-xs text-slate-500">
-                    Esame obiettivo non ancora eseguito. I dati appariranno qui dopo l&apos;esecuzione.
-                  </p>
-                )}
+                  {hasPerformedPhysicalExam ||
+                  physicalExamResults.heart.length > 0 ||
+                  physicalExamResults.lungs.length > 0 ||
+                  physicalExamResults.ecg.length > 0 ? (
+                    <>
+                      {physicalExamResults.heart.length === 0 &&
+                      physicalExamResults.lungs.length === 0 &&
+                      physicalExamResults.ecg.length === 0 ? (
+                        <p className="text-xs text-slate-400 italic">
+                          Nessun reperto specifico ancora registrato. Completa l&apos;esame obiettivo per popolare questa sezione.
+                        </p>
+                      ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs text-slate-200">
+                          {physicalExamResults.heart.length > 0 && (
+                            <div>
+                              <p className="font-semibold text-slate-100 mb-1">Cuore</p>
+                              <ul className="space-y-1">
+                                {physicalExamResults.heart.map((f) => (
+                                  <li key={f.id} className="text-[11px] leading-relaxed">
+                                    <span className="font-semibold text-cyan-200">{f.name}:</span>{" "}
+                                    <span className="text-slate-200">{f.result}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                          {physicalExamResults.lungs.length > 0 && (
+                            <div>
+                              <p className="font-semibold text-slate-100 mb-1">Polmoni</p>
+                              <ul className="space-y-1">
+                                {physicalExamResults.lungs.map((f) => (
+                                  <li key={f.id} className="text-[11px] leading-relaxed">
+                                    <span className="font-semibold text-cyan-200">{f.name}:</span>{" "}
+                                    <span className="text-slate-200">{f.result}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                          {physicalExamResults.ecg.length > 0 && (
+                            <div>
+                              <p className="font-semibold text-slate-100 mb-1">ECG / Parametri</p>
+                              <ul className="space-y-1">
+                                {physicalExamResults.ecg.map((f) => (
+                                  <li key={f.id} className="text-[11px] leading-relaxed">
+                                    <span className="font-semibold text-cyan-200">{f.name}:</span>{" "}
+                                    <span className="text-slate-200">{f.result}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <p className="text-xs text-slate-500 italic">
+                      Esegui l&apos;esame obiettivo per visualizzare i reperti qui.
+                    </p>
+                  )}
+                </div>
                 <label className="block text-sm font-medium text-slate-400">
                   Ipotesi Diagnostica Attuale
                 </label>
@@ -2804,6 +3038,18 @@ const detectClinicalActionsFromText = (rawText: string): DiagnosticAction[] => {
                         setIsGeneratingReferto(true);
                         try {
                           for (const examName of toGenerate) {
+                            const predefinedFinding =
+                              (activeCase.truth as ClinicalCaseTruth & { examFindings?: Record<string, string> })
+                                .examFindings?.[examName];
+
+                            if (predefinedFinding) {
+                              setExamResults((prev) => [
+                                ...prev,
+                                { name: examName, result: predefinedFinding },
+                              ]);
+                              continue;
+                            }
+
                             try {
                               const res = await fetch("/api/chat", {
                                 method: "POST",
@@ -3614,7 +3860,13 @@ const detectClinicalActionsFromText = (rawText: string): DiagnosticAction[] => {
                   {/* ESAMI SANGUE */}
                   <div>
                     <button
-                      onClick={() => { setShowBloodMenu(!showBloodMenu); setShowImagingMenu(false); setShowConsultMenu(false); }}
+                      onClick={() => {
+                        setShowBloodMenu(!showBloodMenu);
+                        setShowImagingMenu(false);
+                        setShowConsultMenu(false);
+                        setShowEndoscopyDigestiveMenu(false);
+                        setShowEndoscopyRespiratoryMenu(false);
+                      }}
                       className="flex w-full items-center gap-3 rounded-2xl border border-slate-700/50 bg-[#111827]/70 px-4 py-3 hover:bg-[#111827]/90 hover:border-cyan-900/40 transition-all duration-300 group"
                     >
                       <Syringe className="h-5 w-5 text-slate-400 group-hover:text-cyan-400" />{" "}
@@ -3640,7 +3892,13 @@ const detectClinicalActionsFromText = (rawText: string): DiagnosticAction[] => {
                   {/* IMAGING */}
                   <div>
                     <button
-                      onClick={() => { setShowImagingMenu(!showImagingMenu); setShowBloodMenu(false); setShowConsultMenu(false); }}
+                      onClick={() => {
+                        setShowImagingMenu(!showImagingMenu);
+                        setShowBloodMenu(false);
+                        setShowConsultMenu(false);
+                        setShowEndoscopyDigestiveMenu(false);
+                        setShowEndoscopyRespiratoryMenu(false);
+                      }}
                       className="flex w-full items-center gap-3 rounded-2xl border border-slate-700/50 bg-[#111827]/70 px-4 py-3 hover:bg-[#111827]/90 hover:border-cyan-900/40 transition-all duration-300 group"
                     >
                       <Radiation className="h-5 w-5 text-slate-400 group-hover:text-cyan-400" />{" "}
@@ -3666,7 +3924,13 @@ const detectClinicalActionsFromText = (rawText: string): DiagnosticAction[] => {
                   {/* CONSULENZE */}
                   <div>
                     <button
-                      onClick={() => { setShowConsultMenu(!showConsultMenu); setShowBloodMenu(false); setShowImagingMenu(false); }}
+                      onClick={() => {
+                        setShowConsultMenu(!showConsultMenu);
+                        setShowBloodMenu(false);
+                        setShowImagingMenu(false);
+                        setShowEndoscopyDigestiveMenu(false);
+                        setShowEndoscopyRespiratoryMenu(false);
+                      }}
                       className="flex w-full items-center gap-3 rounded-2xl border border-slate-700/50 bg-[#111827]/70 px-4 py-3 hover:bg-[#111827]/90 hover:border-cyan-900/40 transition-all duration-300 group"
                     >
                       <Users className="h-5 w-5 text-slate-400 group-hover:text-cyan-400" />{" "}
@@ -3685,6 +3949,90 @@ const detectClinicalActionsFromText = (rawText: string): DiagnosticAction[] => {
                             {exam}
                           </button>
                         ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* ENDOSCOPIA DIGESTIVA */}
+                  <div>
+                    <button
+                      onClick={() => {
+                        setShowEndoscopyDigestiveMenu(!showEndoscopyDigestiveMenu);
+                        setShowBloodMenu(false);
+                        setShowImagingMenu(false);
+                        setShowConsultMenu(false);
+                        setShowEndoscopyRespiratoryMenu(false);
+                      }}
+                      className="flex w-full items-center gap-3 rounded-2xl border border-slate-700/50 bg-[#111827]/70 px-4 py-3 hover:bg-[#111827]/90 hover:border-cyan-900/40 transition-all duration-300 group"
+                    >
+                      <Stethoscope className="h-5 w-5 text-slate-400 group-hover:text-cyan-400" />{" "}
+                      <span className="text-sm font-medium text-slate-200">
+                        Endoscopia Digestiva
+                      </span>
+                    </button>
+                    {showEndoscopyDigestiveMenu && (
+                      <div className={`mt-1 ml-4 border-l ${BORDER_ACCENT} pl-3 py-1 space-y-1`}>
+                        {ENDOSCOPY_DIGESTIVE_EXAMS.map((exam) => {
+                          const meta = ENDOSCOPY_METADATA[exam];
+                          return (
+                            <button
+                              key={exam}
+                              onClick={() =>
+                                handleOrderExam("endoscopiaDigestiva", exam)
+                              }
+                              className="block w-full text-left px-3 py-2 text-sm rounded-xl bg-[#111827]/60 hover:bg-[#111827]/90 text-slate-400 hover:text-cyan-400 transition-all duration-200"
+                            >
+                              <span className="block">{exam}</span>
+                              {meta && (
+                                <span className="block text-[11px] text-slate-500">
+                                  Tempo: {meta.tempo} · Invasività: {meta.invasivita} · Impatto risorse: {meta.costo}
+                                </span>
+                              )}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* ENDOSCOPIA RESPIRATORIA */}
+                  <div>
+                    <button
+                      onClick={() => {
+                        setShowEndoscopyRespiratoryMenu(!showEndoscopyRespiratoryMenu);
+                        setShowBloodMenu(false);
+                        setShowImagingMenu(false);
+                        setShowConsultMenu(false);
+                        setShowEndoscopyDigestiveMenu(false);
+                      }}
+                      className="flex w-full items-center gap-3 rounded-2xl border border-slate-700/50 bg-[#111827]/70 px-4 py-3 hover:bg-[#111827]/90 hover:border-cyan-900/40 transition-all duration-300 group"
+                    >
+                      <Activity className="h-5 w-5 text-slate-400 group-hover:text-cyan-400" />{" "}
+                      <span className="text-sm font-medium text-slate-200">
+                        Endoscopia Respiratoria
+                      </span>
+                    </button>
+                    {showEndoscopyRespiratoryMenu && (
+                      <div className={`mt-1 ml-4 border-l ${BORDER_ACCENT} pl-3 py-1 space-y-1`}>
+                        {ENDOSCOPY_RESPIRATORY_EXAMS.map((exam) => {
+                          const meta = ENDOSCOPY_METADATA[exam];
+                          return (
+                            <button
+                              key={exam}
+                              onClick={() =>
+                                handleOrderExam("endoscopiaRespiratoria", exam)
+                              }
+                              className="block w-full text-left px-3 py-2 text-sm rounded-xl bg-[#111827]/60 hover:bg-[#111827]/90 text-slate-400 hover:text-cyan-400 transition-all duration-200"
+                            >
+                              <span className="block">{exam}</span>
+                              {meta && (
+                                <span className="block text-[11px] text-slate-500">
+                                  Tempo: {meta.tempo} · Invasività: {meta.invasivita} · Impatto risorse: {meta.costo}
+                                </span>
+                              )}
+                            </button>
+                          );
+                        })}
                       </div>
                     )}
                   </div>
@@ -3978,17 +4326,6 @@ const detectClinicalActionsFromText = (rawText: string): DiagnosticAction[] => {
                               },
                             ];
                           });
-
-                          setMessages((prev) => [
-                            ...prev,
-                            {
-                              id: Date.now(),
-                              role: "doctor",
-                              content:
-                                "Conferma esame obiettivo torace: auscultazione cuore/polmoni ed esecuzione ECG con posizionamento documentato nella Clinical Interaction Station.",
-                              timestamp: formatTime(),
-                            },
-                          ]);
 
                           setShowClinicalStationModal(false);
                         }}

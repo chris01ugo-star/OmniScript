@@ -4,6 +4,11 @@ export interface ClinicalCaseTruth {
   requiredExams: string[];
   unnecessaryExams: string[];
   legalReference: string;
+  /**
+   * Referti strutturati per esami specifici (es. endoscopia).
+   * La chiave deve corrispondere esattamente al nome dell'esame nel database prescrittivo.
+   */
+  examFindings?: Record<string, string>;
 }
 
 export interface ClinicalCase {
@@ -144,6 +149,12 @@ export const CLINICAL_CASES: ClinicalCase[] = [
       ],
       legalReference:
         "Raccomandazioni internazionali per la gestione della polmonite acquisita in comunità (CAP) e principi di appropriatezza prescrittiva in Pronto Soccorso.",
+      examFindings: {
+        "Broncoscopia":
+          "All’esame broncoscopico si osserva mucosa bronchiale iperemica e congesta, con secrezioni purulente dense che ostruiscono parzialmente i bronchi segmentari del lobo inferiore destro. Non evidenza di lesioni endobronchiali vegetanti o masse endoluminali. Eseguito lavaggio broncoalveolare (BAL) in segmento basale del lobo inferiore destro per esami colturali e citologici.",
+        "BAL (Lavaggio broncoalveolare)":
+          "Il BAL dal lobo inferiore destro mostra essudato infiammatorio neutrofilo con carica batterica significativa per pneumococco sensibile alla terapia antibiotica in corso; assenza di cellule neoplastiche. Quadro compatibile con polmonite batterica lobare in fase evolutiva.",
+      },
     },
   },
   {
@@ -682,7 +693,7 @@ export const CLINICAL_CASES: ClinicalCase[] = [
         "PCR, VES e indici di flogosi",
         "Esame feci con coprocoltura, ricerca parassiti e Clostridioides difficile",
         "Calprotectina fecale",
-        "Colonscopia con biopsie multiple da colon e retto",
+        "Colonscopia",
         "TC Addome con mezzo di contrasto o RM enterografia in caso di dubbio diagnostico o complicanze",
       ],
       unnecessaryExams: [
@@ -692,6 +703,10 @@ export const CLINICAL_CASES: ClinicalCase[] = [
       ],
       legalReference:
         "Linee guida per la diagnosi di IBD: la mancata esecuzione di colonscopia con biopsie in presenza di diarrea cronica muco-ematica e calprotectina elevata può configurare ritardo diagnostico; attenzione all’uso appropriato di TC Addome con mezzo di contrasto per la valutazione delle complicanze, con corretta informazione sui rischi del contrasto iodato.",
+      examFindings: {
+        "Colonscopia":
+          "All’esame endoscopico si osserva mucosa del retto e del colon distale eritematosa, friabile al contatto, con perdita del pattern vascolare, erosioni superficiali multiple e pseudopolipi infiammatori sparsi. Le lesioni sono continue a partire dal retto senza aree di mucosa sana interposta. Vengono effettuate biopsie multiple da retto e colon sinistro per conferma istologica di malattia infiammatoria cronica intestinale.",
+      },
     },
   },
   {
@@ -725,7 +740,8 @@ export const CLINICAL_CASES: ClinicalCase[] = [
         "Esame periferico dello striscio di sangue",
         "Esame urine completo (ricerca microematuria)",
         "Ricerca sangue occulto nelle feci su più campioni",
-        "Endoscopia digestiva (gastroscopia e/o colonscopia) in base al sospetto clinico e all’età della paziente",
+        "EGDS (Endoscopia digestiva alta)",
+        "Colonscopia",
       ],
       unnecessaryExams: [
         "TC Total Body di screening senza indicazioni specifiche",
@@ -734,6 +750,12 @@ export const CLINICAL_CASES: ClinicalCase[] = [
       ],
       legalReference:
         "Raccomandazioni per la gestione dell’anemia sideropenica nell’adulto: la semplice prescrizione di ferro senza ricerca della causa sottostante, soprattutto in età non più giovanile, può configurare ritardo diagnostico per patologie gravi (es. neoplasie gastrointestinali); è necessario un percorso di approfondimento strutturato.",
+      examFindings: {
+        "EGDS (Endoscopia digestiva alta)":
+          "EGDS nei limiti: mucosa esofagea e gastrica senza lesioni sanguinanti né ulcere attive, bulbo e seconda porzione duodenale regolari. Nessun reperto che giustifichi perdite ematiche croniche significative.",
+        Colonscopia:
+          "Colonscopia fino al cieco: a livello del colon ascendente si evidenzia una formazione vegetante e ulcerata, a base ampia, che occupa circa metà del lume, facilmente sanguinante al contatto. Mucosa circostante ispessita, senza altre lesioni macroscopiche evidenti nel resto del colon e del retto. Eseguite biopsie multiple sulla lesione e marcatura con inchiostro per eventuale riferimento chirurgico.",
+      },
     },
   },
   {
@@ -1056,7 +1078,7 @@ export const CLINICAL_CASES: ClinicalCase[] = [
       requiredExams: [
         "Prelievi ematochimici urgenti (emocromo, coagulazione, funzionalità epatica e renale)",
         "Gruppo sanguigno e prove crociate per emoderivati",
-        "Endoscopia digestiva alta urgente con possibilità di trattamento emostatico",
+        "EGDS (Endoscopia digestiva alta)",
         "Monitoraggio intensivo in area critica",
         "Ecografia addome secondo disponibilità (valutazione di base)",
       ],
@@ -1066,6 +1088,10 @@ export const CLINICAL_CASES: ClinicalCase[] = [
       ],
       legalReference:
         "Gestione dell’emorragia digestiva superiore in paziente cirrotico: la mancata attivazione tempestiva del percorso endoscopico e del supporto emodinamico intensivo può configurare perdita di chance terapeutica significativa.",
+      examFindings: {
+        "EGDS (Endoscopia digestiva alta)":
+          "All’esame endoscopico si osservano varici esofagee di grosso calibro in esofago distale con segni di recente sanguinamento (strie rosse, coaguli adesi). In sede cardiale si evidenzia lago ematico in via di organizzazione. Viene effettuata legatura elastica multipla delle varici sanguinanti con arresto del sanguinamento attivo. Non ulteriori lesioni sanguinanti in stomaco e duodeno prossimale.",
+      },
     },
   },
   {
@@ -1480,6 +1506,99 @@ export const CLINICAL_CASES: ClinicalCase[] = [
       ],
       legalReference:
         "Gestione della meningite batterica acuta: è fondamentale non ritardare l’avvio di terapia antibiotica empirica ad ampio spettro e la rachicentesi (se non controindicata). Ritardi ingiustificati nella diagnosi e nel trattamento possono configurare elevata responsabilità professionale ai sensi della Legge Gelli-Bianco.",
+    },
+  },
+  {
+    id: "gastro-3-itto-ostruttivo-sospetto-tumore-periampollare",
+    specialty: "Gastroenterologia ed Endoscopia",
+    patientName: "Enrico",
+    patientAge: 72,
+    patientSex: "M",
+    initialMessage:
+      "Dottore, da qualche settimana mi dicono che sono diventato giallo, le urine sono molto scure e ho perso l’appetito. Mi sento più stanco e ho perso diversi chili.",
+    patientProfile:
+      "Uomo di 72 anni, ex fumatore, storia di ipertensione e diabete mellito tipo 2 in buon controllo. Da 3–4 settimane riferisce ittero progressivo con colorazione giallastra di cute e sclere, urine scure tipo ‘coca‑cola’ e feci più chiare del solito. Lamenta astenia marcata, calo dell’appetito e perdita di circa 6 kg nell’ultimo mese. Episodi di dolore sordo in ipocondrio destro e regione epigastrica, non colico, talora irradiato posteriormente. Nessuna recente colica biliare nota, nessun intervento chirurgico addominale pregresso. Non abuso alcolico attuale, ma modesto consumo cronico in passato.",
+    physicalExam:
+      "Parametri vitali: PA 130/75 mmHg, FC 86 bpm, FR 18 atti/min, SpO2 98% in aria ambiente, temperatura 36,7°C. Stato generale: paziente vigile, astenico, marcatamente itterico a cute e sclere. Addome: trattabile, lieve dolorabilità in ipocondrio destro e regione epigastrica, senza segni di peritonismo; possibile lieve tumefazione palpabile in sede epigastrica. Non splenomegalia evidente. Segno di Murphy negativo. Non ascite clinicamente apprezzabile. Cute: lievi escoriazioni da prurito diffuso. Arti inferiori: assenza di edemi importanti.",
+    truth: {
+      correctDiagnosis:
+        "Sospetta neoplasia periampollare / della testa del pancreas con ittero ostruttivo",
+      mandatoryQuestions: [
+        "durata di ittero, prurito, urine ipercromiche e feci ipocoliche/anacoliche",
+        "presenza, sede e caratteristiche del dolore addominale (epigastrio, ipocondrio destro, irradiazione dorsale)",
+        "calo ponderale involontario e riduzione dell’appetito",
+        "storia di colelitiasi nota o coliche biliari pregresse",
+        "abitudine alcolica e storia di pancreatite acuta/cronica",
+        "familiarità per neoplasie pancreatiche, biliari o epatiche",
+        "uso di farmaci potenzialmente colestatici o epatotossici",
+      ],
+      requiredExams: [
+        "Emocromo, indici di flogosi, funzionalità epatica completa (AST, ALT, ALP, GGT, Bilirubina totale e frazionata)",
+        "Funzionalità renale ed elettroliti",
+        "Ecografia addome superiore (studio vie biliari e colecisti)",
+        "TC Addome con mezzo di contrasto (studio pancreas e vie biliari)",
+        "CPRE (Colangiopancreatografia retrograda endoscopica)",
+        "EUS (Ecoendoscopia) per caratterizzazione della lesione e prelievo bioptico",
+      ],
+      unnecessaryExams: [
+        "TC Total Body senza indicazioni specifiche prima di aver eseguito imaging mirato epato‑biliare/pancreatico",
+        "RM Total Body di screening aspecifico",
+        "Endoscopie ripetute a breve distanza senza nuove indicazioni cliniche",
+      ],
+      legalReference:
+        "Linee guida per l’inquadramento dell’ittero ostruttivo: la mancata attivazione tempestiva del percorso diagnostico epato‑biliare e pancreatico (ecografia, TC, EUS/CPRE) in presenza di segni di colestasi marcata può configurare ritardo diagnostico di neoplasia periampollare o pancreatica, con perdita di chance di trattamento resecabile.",
+      examFindings: {
+        "CPRE (Colangiopancreatografia retrograda endoscopica)":
+          "All’esame endoscopico si osserva papilla di Vater lievemente prominente. Alla colangiografia si evidenzia stenosi rigida e corta del tratto distale del coledoco con dilatazione a monte delle vie biliari intra‑ ed extra‑epatiche. Viene posizionato stent plastico/metallico autoespandibile nel coledoco con buon deflusso di bile. L’aspetto radiologico e endoscopico è suggestivo per lesione neoplastica periampollare.",
+        "EUS (Ecoendoscopia)":
+          "L’EUS mostra una massa ipoecogena di circa 2,5–3 cm a livello della testa del pancreas, con margini irregolari e lieve dilatazione del dotto pancreatico principale a monte. Non chiara invasione dei vasi mesenterici superiori; alcuni linfonodi peripancreatici aumentati di volume. Eseguite FNA/FNB eco‑guidate della lesione per diagnosi citologica/istologica.",
+      },
+    },
+  },
+  {
+    id: "pneumo-3-nodulo-polmonare-centrale-sospetto-neoplasia",
+    specialty: "Pneumologia / Oncologia Toracica",
+    patientName: "Giovanna",
+    patientAge: 65,
+    patientSex: "F",
+    initialMessage:
+      "Dottore, da qualche mese mi capita spesso di tossire, a volte con un po’ di sangue, e faccio più fatica del solito a respirare quando salgo le scale.",
+    patientProfile:
+      "Donna di 65 anni, grande fumatrice (45 pacchetti/anno), tosse cronica da anni. Negli ultimi 3–4 mesi riferisce peggioramento della tosse, più insistente, con sporadici episodi di emoftoe striata. Lamenta dispnea da sforzo moderato, calo dell’appetito e perdita di circa 4 kg in tre mesi. Nessun episodio febbrile significativo, non sintomi infettivi acuti. Non pregressi tumori noti. Nessun recente viaggio o esposizione occupazionale rilevante riportata.",
+    physicalExam:
+      "Parametri vitali: PA 125/80 mmHg, FC 92 bpm, FR 20 atti/min, SpO2 95% in aria ambiente, temperatura 36,6°C. Stato generale: paziente vigile, magra, con lieve dispnea da sforzo. Torace: murmure vescicolare globalmente conservato, ma ridotto in regione ilo‑parailare destra, con possibili ronchi localizzati; nessun segno di versamento pleurico evidente all’esame obiettivo. Cuore: toni ritmici, non soffi maggiori. Non edemi declivi. Cute e mucose senza cianosi marcata.",
+    truth: {
+      correctDiagnosis:
+        "Sospetta neoplasia polmonare centrale (lesione ilare) in grande fumatrice con emoftoe",
+      mandatoryQuestions: [
+        "durata e andamento della tosse cronica e del peggioramento recente",
+        "presenza, quantità e frequenza dell’emoftoe",
+        "calo ponderale, astenia e altri sintomi generali (sudorazioni notturne, febbricola)",
+        "storia tabagica dettagliata (pacchetti/anno) e eventuale cessazione",
+        "eventuali esposizioni occupazionali (asbesto, polveri, sostanze chimiche)",
+        "precedenti radiografie/TC torace e loro esiti",
+        "presenza di dolore toracico, raucedine o disfagia",
+      ],
+      requiredExams: [
+        "Emocromo, indici di flogosi e funzionalità ematochimica di base",
+        "RX Torace in due proiezioni",
+        "TC Torace con mezzo di contrasto (studio del parenchima e degli ilari)",
+        "Broncoscopia",
+        "EBUS (Endobronchial Ultrasound) con eventuale agoaspirato linfonodale e/o della lesione",
+      ],
+      unnecessaryExams: [
+        "TC Total Body di screening senza indicazioni specifiche prima di aver eseguito imaging toracico mirato",
+        "RM Torace routinaria in prima battuta",
+        "Esami radiologici di altri distretti non correlati al quadro (colonna, arti) in assenza di sintomi specifici",
+      ],
+      legalReference:
+        "Nella gestione di pazienti ad alto rischio (grandi fumatori) con emoftoe e sospetto nodulo centrale, la mancata esecuzione tempestiva di TC torace e broncoscopia/EBUS può configurare ritardo diagnostico di neoplasia polmonare con peggioramento della prognosi e riduzione delle opzioni terapeutiche.",
+      examFindings: {
+        Broncoscopia:
+          "All’esame broncoscopico si osserva, a livello del bronco lobare superiore destro, una lesione vegetante, friabile, che stenotizza significativamente il lume bronchiale. La mucosa circostante appare eritematosa e ispessita. Eseguite biopsie multiple della lesione e lavaggio bronchiale per citologia. Sanguinamento moderato controllato con adrenalina topica.",
+        "EBUS (Endobronchial Ultrasound)":
+          "L’EBUS evidenzia linfonodi ipoecogeni aumentati di volume in sede mediastinica (stazioni 4R e 7), con caratteristiche ecografiche sospette per secondarismi. Eseguito agoaspirato transbronchiale (TBNA) eco‑guidato dei linfonodi 4R e 7 per stadiazione istologica. Lesione endobronchiale centrale confermata in corrispondenza del bronco lobare superiore destro.",
+      },
     },
   },
 ];
