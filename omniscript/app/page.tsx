@@ -1789,7 +1789,7 @@ const detectClinicalActionsFromText = (rawText: string): DiagnosticAction[] => {
                         : "border border-slate-700 focus:border-cyan-500 focus:ring-cyan-500"
                     }`}
                     placeholder="Es. DrRossi"
-                    autoComplete="username"
+                    autoComplete="off"
                     disabled={authIsProcessing}
                     required
                   />
@@ -1809,7 +1809,7 @@ const detectClinicalActionsFromText = (rawText: string): DiagnosticAction[] => {
                     onChange={(e) => setAuthPassword(e.target.value)}
                     className="bg-slate-950/80 border border-slate-700 text-white rounded-lg px-3 py-2 w-full text-sm placeholder:text-slate-500 focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500"
                     placeholder={authMode === "login" ? "Inserisci la password" : "Definisci una password sicura"}
-                    autoComplete={authMode === "login" ? "current-password" : "new-password"}
+                    autoComplete={authMode === "login" ? "one-time-code" : "new-password"}
                     disabled={authIsProcessing}
                     required
                   />

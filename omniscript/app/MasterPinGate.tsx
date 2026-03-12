@@ -1,5 +1,5 @@
 import { Lock, ShieldAlert } from "lucide-react";
-import type { FormEvent } from "react";
+import { useEffect, useRef, type FormEvent } from "react";
 
 interface MasterPinGateProps {
   masterPin: string;
@@ -18,6 +18,14 @@ export function MasterPinGate({
   onChangePin,
   onSubmit,
 }: MasterPinGateProps) {
+  const pinInputRef = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    if (!mounted || isCheckingMasterPin) return;
+    // Imposta il focus automatico sul campo PIN solo quando il portale è pronto
+    pinInputRef.current?.focus();
+  }, [mounted, isCheckingMasterPin]);
+
   if (!mounted || isCheckingMasterPin) {
     return (
       <div className="fixed inset-0 bg-[#020617] flex items-center justify-center z-[99999]">
@@ -50,6 +58,7 @@ export function MasterPinGate({
               Codice di Accesso
             </label>
             <input
+              ref={pinInputRef}
               type="password"
               autoComplete="off"
               value={masterPin}
