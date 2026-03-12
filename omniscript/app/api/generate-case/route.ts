@@ -1,15 +1,18 @@
 import OpenAI from "openai";
 import { NextResponse } from "next/server";
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY || "",
-});
-
 export async function POST(req: Request) {
   try {
-    if (!process.env.OPENAI_API_KEY) {
-      throw new Error("Manca la chiave OPENAI_API_KEY nel file .env.local!");
+    const apiKey = process.env.NEXT_PUBLIC_OPENAI_API_KEY;
+    if (!apiKey) {
+      console.error("Errore: NEXT_PUBLIC_OPENAI_API_KEY non configurata");
+      return NextResponse.json(
+        { error: "Configurazione mancante: NEXT_PUBLIC_OPENAI_API_KEY non impostata" },
+        { status: 500 },
+      );
     }
+
+    const openai = new OpenAI({ apiKey });
 
     const partialInput = await req.json();
 

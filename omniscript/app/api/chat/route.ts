@@ -1,19 +1,20 @@
 import OpenAI from "openai";
 import { NextResponse } from "next/server";
 
-// 1. Diciamo al computer di usare la tua chiave segreta
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY || "",
-});
-
 export async function POST(req: Request) {
   try {
     const { messages, patientProfile, generateReferto, examName, correctDiagnosis } = await req.json();
 
-    // 2. Controllo di sicurezza: la chiave esiste?
-    if (!process.env.OPENAI_API_KEY) {
-      throw new Error("Manca la chiave OPENAI_API_KEY nel file .env.local!");
+    const apiKey = process.env.NEXT_PUBLIC_OPENAI_API_KEY;
+    if (!apiKey) {
+      console.error("Errore: NEXT_PUBLIC_OPENAI_API_KEY non configurata");
+      return NextResponse.json(
+        { error: "Configurazione mancante: NEXT_PUBLIC_OPENAI_API_KEY non impostata" },
+        { status: 500 },
+      );
     }
+
+    const openai = new OpenAI({ apiKey });
 
     // Modalità nascosta: generazione referto coerente con la diagnosi vera del caso
     if (generateReferto && examName) {
@@ -32,7 +33,7 @@ export async function POST(req: Request) {
 
     // 3. Chiamata all'Intelligenza Artificiale (chat paziente)
     const response = await openai.chat.completions.create({
-      model: "gpt-4o-mini", // o gpt-3.5-turbo
+      model: "gpt-4o-mini",
       messages: [
         {
           role: "system",
