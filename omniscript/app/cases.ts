@@ -375,6 +375,46 @@ export const CLINICAL_CASES: ClinicalCase[] = [
     },
   },
   {
+    id: "cardio-dissezione-aortica",
+    specialty: "Cardiologia / Chirurgia Vascolare",
+    patientName: "Carlo",
+    patientAge: 68,
+    patientSex: "M",
+    initialMessage:
+      "Dottore, da circa un’ora ho un dolore fortissimo al petto che è iniziato all’improvviso e poi è sceso verso la schiena. Sento come se qualcosa si stesse strappando dentro.",
+    patientProfile:
+      "Uomo di 68 anni, iperteso di lunga data con controllo pressorio irregolare, noto fumatore, possibile sindrome di Marfan non formalmente diagnosticata. Esordio improvviso di dolore toracico severo, descritto come lacerante, con irradiazione interscapolare e al dorso, non modificato da respiro o posizione. PA inizialmente molto elevata, successivamente con possibile differenza tra gli arti superiori. Non storia recente di trauma. Non febbre, non tosse produttiva. Riferisce sensazione di imminente morte.",
+    physicalExam:
+      "Parametri vitali: PA 190/100 mmHg al braccio destro e 160/90 mmHg al braccio sinistro, FC 105 bpm, FR 24 atti/min, SpO2 97% in aria ambiente, temperatura 36,6°C. Stato generale: paziente agitato, sudato freddo, pallido. Torace: murmure vescicolare globale conservato. Apparato cardiovascolare: toni cardiaci ritmici, presenza di soffio diastolico ad alta frequenza lungo il margine sternale destro, non riferito in anamnesi; polsi periferici leggermente ridotti all’arto superiore sinistro rispetto al destro. Addome: trattabile, non francamente dolente. Esame neurologico: vigile, nessun deficit focale evidente. Nessun segno di edema periferico marcato.",
+    truth: {
+      correctDiagnosis:
+        "Sospetta dissezione acuta dell’aorta toracica con insufficienza aortica associata",
+      mandatoryQuestions: [
+        "tempo esatto di insorgenza del dolore e modalità di esordio",
+        "caratteristiche del dolore (lacerante, migrante, intensità massima all’esordio)",
+        "irradiazione del dolore verso dorso, addome o arti inferiori",
+        "storia di ipertensione arteriosa e controllo pressorio",
+        "eventuali pregressi aneurismi noti o malattie del tessuto connettivo",
+        "eventuali episodi sincopali o deficit neurologici transitori associati al dolore",
+        "familiarità per dissezione aortica o morte improvvisa in età giovane",
+      ],
+      requiredExams: [
+        "Elettrocardiogramma (ECG) a 12 derivazioni per escludere sindrome coronarica acuta concomitante",
+        "TC torace-addome con mezzo di contrasto (angio-TC) urgente per studio dell’aorta",
+        "Ecocardiogramma transtoracico/TEE urgente se disponibile",
+        "Esami ematochimici di base (emocromo, coagulazione, funzionalità renale)",
+        "Monitoraggio pressorio e cardiaco continuo in ambiente ad alta intensità di cura",
+      ],
+      unnecessaryExams: [
+        "RX Torace come unico esame decisionale",
+        "TC cranio routinaria senza segni neurologici",
+        "RM total body non mirata",
+      ],
+      legalReference:
+        "Linee guida internazionali sulla gestione della dissezione acuta dell’aorta e percorsi tempo-dipendenti per il dolore toracico non coronarico ad alto rischio.",
+    },
+  },
+  {
     id: "pediatria-1-bronchiolite-lattante",
     specialty: "Pediatria / Pneumologia",
     patientName: "Tommaso",

@@ -10,11 +10,12 @@ import {
   ResponsiveContainer as RadarResponsiveContainer,
   Tooltip as RadarTooltip,
 } from "recharts";
-import { Activity, ChevronUp, Clock, FilePlus, FileText, Home, Lightbulb, Lock, Minimize2, Radiation, RefreshCw, ShieldAlert, Stethoscope, Syringe, UserCircle, X, XCircle, Users } from "lucide-react";
+import { Activity, CheckCircle2, ChevronUp, Clock, FilePlus, FileText, Home, Lightbulb, Lock, Minimize2, Radiation, RefreshCw, ShieldAlert, Stethoscope, Syringe, UserCircle, X, XCircle, Users } from "lucide-react";
 import { ClinicalAdvisorModal } from "./ClinicalAdvisorModal";
 import { AccountDashboard, saveSimulationToHistoryForUser, initializeUserProfile } from "./AccountDashboard";
 import { CLINICAL_CASES, type ClinicalCase } from "./cases";
 import { MasterPinGate } from "./MasterPinGate";
+import { AnatomicalMap, KEY_HOTSPOT_IDS } from "./AnatomicalMap";
 
 const CLINICAL_BLUE_GRADIENT = "from-cyan-600/90 via-sky-500/90 to-blue-600/90";
 const PANEL_BG = "bg-[#0f172a]/80";
@@ -98,6 +99,16 @@ interface OmniUser {
   nickname: string;
   password: string;
 }
+
+type PhysicalExamSectionKey = "heart" | "lungs" | "ecg";
+
+interface PhysicalExamFinding {
+  id: string;
+  name: string;
+  result: string;
+}
+
+type PhysicalExamResultsState = Record<PhysicalExamSectionKey, PhysicalExamFinding[]>;
 
 const INITIAL_CASE = CLINICAL_CASES[0];
 
@@ -235,6 +246,7 @@ export default function MedicalChat() {
   const [omniScore, setOmniScore] = useState<PunteggioOmni>({ accuratezzaClinica: 0, appropriatezzaPrescrittiva: 0, sostenibilitaEconomica: 100 });
   const [pertinentClinicalAccuracy, setPertinentClinicalAccuracy] = useState(0);
   const [usedKeywords, setUsedKeywords] = useState<Set<string>>(new Set());
+  const [examinedHotspots, setExaminedHotspots] = useState<Set<string>>(new Set());
   const [isEvaluating, setIsEvaluating] = useState(false);
   const [evaluationResult, setEvaluationResult] = useState<EvaluationResult | null>(null);
   const [prescribedExams, setPrescribedExams] = useState<string[]>([]);
@@ -258,6 +270,17 @@ export default function MedicalChat() {
   const [showScenarioModal, setShowScenarioModal] = useState(true);
   const [selectedSpecialty, setSelectedSpecialty] = useState<string>("Tutte le specialità");
   const [showFinalReportModal, setShowFinalReportModal] = useState(false);
+  const [showClinicalStationModal, setShowClinicalStationModal] = useState(false);
+
+  const [ecgLeadAssignments, setEcgLeadAssignments] = useState<Record<string, string | null>>({
+    slotV1: null,
+    slotV2: null,
+    slotV3: null,
+    slotV4: null,
+    slotV5: null,
+    slotV6: null,
+  });
+  const [ecgPlacementQuality, setEcgPlacementQuality] = useState<"not_done" | "correct" | "technically_poor">("not_done");
 
   const [customPatientName, setCustomPatientName] = useState("");
   const [customPatientAge, setCustomPatientAge] = useState("");
@@ -304,8 +327,241 @@ export default function MedicalChat() {
   const [showRepartoSelector, setShowRepartoSelector] = useState(false);
   const [legalAlert, setLegalAlert] = useState<{ type: "minor" | "pregnancy"; examName: string; category: string } | null>(null);
   const [legalInfractions, setLegalInfractions] = useState<string[]>([]);
+  const [physicalExamResults, setPhysicalExamResults] = useState<PhysicalExamResultsState>(() => ({
+    heart: [],
+    lungs: [],
+    ecg: [],
+  }));
+
+  // Gestione audio clinico (auscultazione + ECG)
+  const auscultationAudiosRef = useRef<Record<string, HTMLAudioElement> | null>(null);
+  const ecgBeepAudioRef = useRef<HTMLAudioElement | null>(null);
+  const ecgInterferenceAudioRef = useRef<HTMLAudioElement | null>(null);
+  const [isAuscultationPlaying, setIsAuscultationPlaying] = useState(false);
+  const [clinicalAudioVolume, setClinicalAudioVolume] = useState(0.7);
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+
+  // Estrazione della frequenza cardiaca dallo scenario corrente (se presente)
+  const derivedHeartRate = useMemo(() => {
+    const text = activeCase.physicalExam ?? "";
+    const match = text.match(/FC\s*(\d+)\s*bpm/i);
+    const value = match ? parseInt(match[1], 10) : NaN;
+    if (!Number.isFinite(value) || value <= 0) return 80;
+    return Math.max(30, Math.min(180, value));
+  }, [activeCase.physicalExam]);
+
+  // Inizializza gli asset audio lato client
+  useEffect(() => {
+    if (!mounted) return;
+
+    if (!auscultationAudiosRef.current) {
+      auscultationAudiosRef.current = {
+        heart_normal: new Audio("/audio/heart_normal.mp3"),
+        heart_murmur: new Audio("/audio/heart_murmur.mp3"),
+        heart_gallop: new Audio("/audio/heart_gallop.mp3"),
+        lung_normal: new Audio("/audio/lung_normal.mp3"),
+        lung_crackles: new Audio("/audio/lung_crackles.mp3"),
+        lung_wheezing: new Audio("/audio/lung_wheezing.mp3"),
+      };
+      Object.values(auscultationAudiosRef.current).forEach((a) => {
+        a.loop = true;
+        a.volume = clinicalAudioVolume;
+      });
+    }
+
+    if (!ecgBeepAudioRef.current) {
+      ecgBeepAudioRef.current = new Audio("/audio/ecg_beep.mp3");
+      ecgBeepAudioRef.current.volume = clinicalAudioVolume;
+    }
+
+    if (!ecgInterferenceAudioRef.current) {
+      ecgInterferenceAudioRef.current = new Audio("/audio/ecg_interference.mp3");
+      ecgInterferenceAudioRef.current.loop = true;
+      ecgInterferenceAudioRef.current.volume = clinicalAudioVolume * 0.7;
+    }
+  }, [mounted, clinicalAudioVolume]);
+
+  // Aggiorna il volume di tutti gli audio quando cambia lo slider
+  useEffect(() => {
+    if (auscultationAudiosRef.current) {
+      Object.values(auscultationAudiosRef.current).forEach((a) => {
+        a.volume = clinicalAudioVolume;
+      });
+    }
+    if (ecgBeepAudioRef.current) {
+      ecgBeepAudioRef.current.volume = clinicalAudioVolume;
+    }
+    if (ecgInterferenceAudioRef.current) {
+      ecgInterferenceAudioRef.current.volume = clinicalAudioVolume * 0.7;
+    }
+  }, [clinicalAudioVolume]);
+
+  const stopAllAuscultation = () => {
+    if (auscultationAudiosRef.current) {
+      Object.values(auscultationAudiosRef.current).forEach((a) => {
+        a.pause();
+        a.currentTime = 0;
+      });
+    }
+    setIsAuscultationPlaying(false);
+  };
+
+  const playAuscultationForHotspot = (id: string) => {
+    if (!auscultationAudiosRef.current) return;
+
+    // Ferma eventuali suoni in corso
+    Object.values(auscultationAudiosRef.current).forEach((a) => {
+      a.pause();
+      a.currentTime = 0;
+    });
+
+    // Mappa semplice hotspot → asset audio
+    let key: string | null = null;
+    const cardiacIds = ["aortic", "pulmonic", "tricuspid", "mitral"];
+    const lungIdsNormal = ["lung-apex-right", "lung-apex-left"];
+    const lungIdsCrackles = ["lung-base-right", "lung-base-left"];
+    const lungIdsWheezing = ["lung-axillary-right", "lung-axillary-left"];
+
+    if (cardiacIds.includes(id)) {
+      // Scenario di default: cuore normale, con possibilità di estendere per casi specifici
+      key = "heart_normal";
+    } else if (lungIdsNormal.includes(id)) {
+      key = "lung_normal";
+    } else if (lungIdsCrackles.includes(id)) {
+      key = "lung_crackles";
+    } else if (lungIdsWheezing.includes(id)) {
+      key = "lung_wheezing";
+    }
+
+    if (!key) return;
+
+    const audio = auscultationAudiosRef.current[key];
+    if (!audio) return;
+
+    audio.currentTime = 0;
+    audio
+      .play()
+      .then(() => {
+        setIsAuscultationPlaying(true);
+      })
+      .catch(() => {
+        // Ignora errori di autoplay bloccato dal browser
+      });
+  };
+
+  const handleAnatomicalHotspotExamined = (payload: {
+    id: string;
+    name: string;
+    result: string;
+    category: "auscultation" | "ecg";
+    isKey: boolean;
+  }) => {
+    if (payload.category === "auscultation") {
+      playAuscultationForHotspot(payload.id);
+    }
+
+    setExaminedHotspots((prev) => {
+      const next = new Set(prev);
+      next.add(payload.id);
+      return next;
+    });
+
+    if (!hasPerformedPhysicalExam) {
+      setHasPerformedPhysicalExam(true);
+    }
+
+    setPhysicalExamResults((prev) => {
+      const next: PhysicalExamResultsState = {
+        heart: [...prev.heart],
+        lungs: [...prev.lungs],
+        ecg: [...prev.ecg],
+      };
+
+      let section: PhysicalExamSectionKey;
+      const cardiacIds = ["aortic", "pulmonic", "tricuspid", "mitral"];
+      const lungIds = [
+        "lung-apex-right",
+        "lung-apex-left",
+        "lung-base-right",
+        "lung-base-left",
+        "lung-axillary-right",
+        "lung-axillary-left",
+      ];
+
+      if (payload.category === "ecg") {
+        section = "ecg";
+      } else if (cardiacIds.includes(payload.id)) {
+        section = "heart";
+      } else if (lungIds.includes(payload.id)) {
+        section = "lungs";
+      } else {
+        section = payload.category === "auscultation" ? "heart" : "ecg";
+      }
+
+      const exists = next[section].some((f) => f.id === payload.id);
+      if (!exists) {
+        next[section] = [
+          ...next[section],
+          {
+            id: payload.id,
+            name: payload.name,
+            result: payload.result,
+          },
+        ];
+      }
+
+      return next;
+    });
+  };
+
+  const handleEcgDragStart = (event: React.DragEvent<HTMLDivElement>, leadId: string) => {
+    event.dataTransfer.setData("text/plain", leadId);
+  };
+
+  const handleEcgDropOnSlot = (event: React.DragEvent<HTMLDivElement>, slotId: string) => {
+    event.preventDefault();
+    const leadId = event.dataTransfer.getData("text/plain");
+    if (!leadId) return;
+
+    setEcgLeadAssignments((prev) => {
+      const next: Record<string, string | null> = { ...prev };
+      // Rimuovi il lead da eventuali altri slot
+      (Object.keys(next) as (keyof typeof next)[]).forEach((key) => {
+        if (next[key] === leadId) next[key] = null;
+      });
+      next[slotId] = leadId;
+      return next;
+    });
+  };
+
+  const handleEcgAllowDrop = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+  };
+
+  // Beep di monitor ECG con frequenza legata alla FC stimata
+  useEffect(() => {
+    if (!showClinicalStationModal || !mounted) return;
+    if (!ecgBeepAudioRef.current) return;
+
+    const intervalMs = Math.max(250, Math.min(2000, Math.round((60_000 / derivedHeartRate) || 750)));
+
+    let timer: number | undefined;
+    const tick = () => {
+      if (!ecgBeepAudioRef.current) return;
+      if (ecgPlacementQuality === "not_done") return;
+      ecgBeepAudioRef.current.currentTime = 0;
+      ecgBeepAudioRef.current.play().catch(() => {});
+    };
+
+    timer = window.setInterval(tick, intervalMs);
+
+    return () => {
+      if (timer !== undefined) {
+        window.clearInterval(timer);
+      }
+    };
+  }, [showClinicalStationModal, mounted, derivedHeartRate, ecgPlacementQuality]);
 
   const handleAuthSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -440,10 +696,13 @@ export default function MedicalChat() {
         timestamp: formatTime(),
       },
     ]);
+    // Nuovo scenario: azzera sempre gli esami prescritti e i relativi risultati/storico
+    setPrescribedExams([]);
+    setPrescribedExamsHistory([]);
+    setExamResults([]);
     setShowScenarioModal(true);
     setPhase('chat');
     setCurrentHypothesis('');
-    setExamResults([]);
     setDiagnosisChoice(null);
   }, [selectedSpecialty]);
 
@@ -902,6 +1161,44 @@ const detectClinicalActionsFromText = (rawText: string): DiagnosticAction[] => {
         if (!hasPerformedPhysicalExam) clinicalAccuracyPenalty += 10;
         if (!hasKeyExams) clinicalAccuracyPenalty += 15;
 
+        const hasCompleteAnatomicalExam =
+          KEY_HOTSPOT_IDS.length === 0
+            ? true
+            : KEY_HOTSPOT_IDS.every((id) => examinedHotspots.has(id));
+
+        if (!hasCompleteAnatomicalExam) {
+          clinicalAccuracyPenalty += 5;
+          infractions.push(
+            "Valutazione incompleta dei principali focolai di auscultazione cardiaca / punti di repere ECG sul torace nella mappa anatomica interattiva."
+          );
+        }
+
+        // Omissione di semeiotica essenziale prima di terapia cardiologica
+        const cardiacHotspots = ["aortic", "pulmonic", "tricuspid", "mitral"];
+        const hasAnyCardiacAuscultation = cardiacHotspots.some((id) =>
+          examinedHotspots.has(id)
+        );
+
+        const hasCorrectEcgPlacement = ecgPlacementQuality === "correct";
+
+        const hasCardioTherapy = messages.some(
+          (m) =>
+            m.role === "doctor" &&
+            /aspirina|asa\b|clopidogrel|ticagrelor|prasugrel|eparina|fondaparinux|nitroglic|beta-?bloccante|ace[-\s]?inibitore|iv nitrato|furosemide|diuretico/i.test(
+              m.content
+            )
+        );
+
+        if (
+          hasCardioTherapy &&
+          (!hasAnyCardiacAuscultation || !hasCorrectEcgPlacement)
+        ) {
+          clinicalAccuracyPenalty += 10;
+          infractions.push(
+            "Prescrizione di terapia cardiologica senza adeguata auscultazione cardiaca e/o senza corretta esecuzione dell'ECG (omissione di passaggio semeiotico essenziale rispetto alle raccomandazioni ISS/SNLG e alla Legge 24/2017 Gelli-Bianco)."
+          );
+        }
+
         const totalStepMs =
           stepDurations.chat +
           stepDurations.hypothesis +
@@ -963,6 +1260,15 @@ const detectClinicalActionsFromText = (rawText: string): DiagnosticAction[] => {
         if (isEmergencyMode && totalStepMs > 10 * 60_000) {
           infractions.push(
             "Tempo di inquadramento diagnostico superiore ai limiti di sicurezza (per casi emergenti). Scostamento rispetto ai tempi-obiettivo dei percorsi di triage e trattamento in Pronto Soccorso (protocolli SIMEU/SSN per codici ad alta priorità)."
+          );
+        }
+
+        // 4) ECG tecnicamente povero a fronte di richiesta di tracciato
+        const hasEcgRequested = prescribedExams.includes("ECG a 12 derivazioni");
+        if (hasEcgRequested && ecgPlacementQuality === "technically_poor") {
+          clinicalAccuracyPenalty += 5;
+          infractions.push(
+            "ECG eseguito con posizionamento non corretto delle derivazioni precordiali (ECG tecnicamente povero), con possibile distorsione dell'interpretazione rispetto ai protocolli standard a 12 derivazioni."
           );
         }
 
@@ -1358,6 +1664,13 @@ const detectClinicalActionsFromText = (rawText: string): DiagnosticAction[] => {
 
     confirmOrderExam(category, examName);
   };
+
+  const removeExam = (examName: string) => {
+    // Rimuove un singolo esame prescritto e aggiorna in tempo reale strutture collegate
+    setPrescribedExams((prev) => prev.filter((e) => e !== examName));
+    setPrescribedExamsHistory((prev) => prev.filter((e) => e.name !== examName));
+    setExamResults((prev) => prev.filter((r) => r.name !== examName));
+  };
   
   const handlePerformPhysicalExam = () => {
     setShowBloodMenu(false);
@@ -1371,13 +1684,8 @@ const detectClinicalActionsFromText = (rawText: string): DiagnosticAction[] => {
       {
         id: Date.now(),
         role: "doctor",
-        content: "Procedo con l'esame obiettivo completo, valutando parametri vitali e stato neurologico...",
-        timestamp: formatTime(),
-      },
-      {
-        id: Date.now() + 1,
-        role: "patient",
-        content: activeCase.physicalExam,
+        content:
+          "Procedo con l'esame obiettivo completo, valutando parametri vitali, cuore, polmoni e stato neurologico.",
         timestamp: formatTime(),
       },
     ]);
@@ -1593,6 +1901,8 @@ const detectClinicalActionsFromText = (rawText: string): DiagnosticAction[] => {
     setCurrentStepStart(null);
     setEfficiencyScore(null);
     setLegalInfractions([]);
+    setPrescribedExams([]);
+    setPrescribedExamsHistory([]);
   };
 
   const attemptedUnsafeDischarge = hasDischarged && (!hasPrescribedTC || !hasDiscoveredCoumadin);
@@ -2156,6 +2466,10 @@ const detectClinicalActionsFromText = (rawText: string): DiagnosticAction[] => {
                             timestamp: formatTime(),
                           },
                         ]);
+                        // Cambio scenario: azzera sempre esami prescritti e risultati
+                        setPrescribedExams([]);
+                        setPrescribedExamsHistory([]);
+                        setExamResults([]);
                         const normalized = value.toLowerCase();
                         const isEmergencyCategory =
                           normalized.includes("emergenza") ||
@@ -2195,6 +2509,10 @@ const detectClinicalActionsFromText = (rawText: string): DiagnosticAction[] => {
                           timestamp: formatTime(),
                         },
                       ]);
+                      // Nuovo profilo: azzera esami prescritti e risultati
+                      setPrescribedExams([]);
+                      setPrescribedExamsHistory([]);
+                      setExamResults([]);
                     }}
                     className="rounded-full px-5 py-2 text-sm font-medium text-red-50/95 shadow-[0_0_12px_rgba(248,113,113,0.25)] border border-red-800/50 bg-gradient-to-r from-red-600/70 to-orange-600/70 hover:from-red-500/90 hover:to-orange-500/90 hover:shadow-[0_0_18px_rgba(248,113,113,0.4)] transition-all duration-300"
                   >
@@ -2350,6 +2668,94 @@ const detectClinicalActionsFromText = (rawText: string): DiagnosticAction[] => {
                 <h3 className="text-lg font-medium text-slate-100 border-b border-slate-700/50 pb-2">
                   Formulazione Ipotesi e Prescrizioni
                 </h3>
+                <div className={`rounded-2xl border ${BORDER_ACCENT} bg-[#020617]/80 p-3`}>
+                  <div className="flex items-center justify-between gap-2 mb-2">
+                    <p className="text-xs font-semibold text-slate-300">
+                      Esame Obiettivo Interattivo — Torace / ECG
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => setShowClinicalStationModal(true)}
+                      className="inline-flex items-center gap-1 rounded-full border border-cyan-700/70 bg-slate-900/70 px-3 py-1.5 text-[11px] font-medium text-cyan-200 hover:bg-slate-900 hover:border-cyan-400/80 transition-colors"
+                    >
+                      <Stethoscope className="h-3.5 w-3.5" />
+                      <span>Apri Clinical Interaction Station</span>
+                    </button>
+                  </div>
+                  <AnatomicalMap
+                    activeCase={activeCase}
+                    examinedHotspots={examinedHotspots}
+                    onHotspotExamined={handleAnatomicalHotspotExamined}
+                  />
+                  <p className="mt-2 text-[11px] text-slate-400 leading-relaxed">
+                    Clicca sui punti luminosi per auscultare i principali focolai cardiaci e i campi polmonari e visualizzare i punti di repere per l&apos;ECG.
+                    I punti chiave non esplorati verranno registrati come{" "}
+                    <span className="font-semibold text-red-300">valutazione incompleta</span> nel report finale.
+                  </p>
+                </div>
+                {hasPerformedPhysicalExam || physicalExamResults.heart.length > 0 || physicalExamResults.lungs.length > 0 || physicalExamResults.ecg.length > 0 ? (
+                  <div className="rounded-2xl border border-slate-700/60 bg-slate-800/50 p-3 space-y-2">
+                    <div className="flex items-center justify-between gap-2 mb-1">
+                      <p className="text-xs font-semibold text-slate-100 flex items-center gap-1.5">
+                        <Stethoscope className="h-3.5 w-3.5 text-cyan-300" />
+                        <span>Reperti Esame Obiettivo</span>
+                      </p>
+                    </div>
+                    {physicalExamResults.heart.length === 0 &&
+                    physicalExamResults.lungs.length === 0 &&
+                    physicalExamResults.ecg.length === 0 ? (
+                      <p className="text-xs text-slate-400">
+                        Nessun reperto specifico ancora registrato. Completa l&apos;esame obiettivo per popolare questa sezione.
+                      </p>
+                    ) : (
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs text-slate-200">
+                        {physicalExamResults.heart.length > 0 && (
+                          <div>
+                            <p className="font-semibold text-slate-100 mb-1">Cuore</p>
+                            <ul className="space-y-1">
+                              {physicalExamResults.heart.map((f) => (
+                                <li key={f.id} className="text-[11px] leading-relaxed">
+                                  <span className="font-semibold text-cyan-200">{f.name}:</span>{" "}
+                                  <span className="text-slate-200">{f.result}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                        {physicalExamResults.lungs.length > 0 && (
+                          <div>
+                            <p className="font-semibold text-slate-100 mb-1">Polmoni</p>
+                            <ul className="space-y-1">
+                              {physicalExamResults.lungs.map((f) => (
+                                <li key={f.id} className="text-[11px] leading-relaxed">
+                                  <span className="font-semibold text-cyan-200">{f.name}:</span>{" "}
+                                  <span className="text-slate-200">{f.result}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                        {physicalExamResults.ecg.length > 0 && (
+                          <div>
+                            <p className="font-semibold text-slate-100 mb-1">ECG / Parametri</p>
+                            <ul className="space-y-1">
+                              {physicalExamResults.ecg.map((f) => (
+                                <li key={f.id} className="text-[11px] leading-relaxed">
+                                  <span className="font-semibold text-cyan-200">{f.name}:</span>{" "}
+                                  <span className="text-slate-200">{f.result}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <p className="text-xs text-slate-500">
+                    Esame obiettivo non ancora eseguito. I dati appariranno qui dopo l&apos;esecuzione.
+                  </p>
+                )}
                 <label className="block text-sm font-medium text-slate-400">
                   Ipotesi Diagnostica Attuale
                 </label>
@@ -2373,8 +2779,17 @@ const detectClinicalActionsFromText = (rawText: string): DiagnosticAction[] => {
                     <p className="text-xs font-medium text-slate-400 mb-2">Esami prescritti in questa fase</p>
                     <ul className="space-y-1 text-sm text-slate-200">
                       {prescribedExams.map((name, i) => (
-                        <li key={i} className="flex items-center gap-2">
-                          <span className="text-cyan-400/90">•</span> {name}
+                        <li key={`${name}-${i}`} className="flex items-center gap-2">
+                          <span className="text-cyan-400/90">•</span>
+                          <span className="flex-1 truncate">{name}</span>
+                          <button
+                            type="button"
+                            onClick={() => removeExam(name)}
+                            className="ml-1 inline-flex h-5 w-5 items-center justify-center rounded-full border border-slate-700/70 bg-[#020617]/80 text-slate-500 hover:text-red-400 hover:border-red-500/60 hover:bg-red-950/30 transition-colors duration-200"
+                            aria-label={`Rimuovi esame ${name}`}
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
                         </li>
                       ))}
                     </ul>
@@ -3274,6 +3689,316 @@ const detectClinicalActionsFromText = (rawText: string): DiagnosticAction[] => {
                     )}
                   </div>
 
+                </div>
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* MODALE CLINICAL INTERACTION STATION (ECG + AUSCULTAZIONE) */}
+        {showClinicalStationModal && mounted && (
+          <>
+            <div
+              className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md"
+              onClick={() => setShowClinicalStationModal(false)}
+            />
+            <div className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none">
+              <div className={`pointer-events-auto ${PANEL_BG} border ${BORDER_ACCENT} rounded-3xl w-full max-w-5xl shadow-[0_0_40px_rgba(15,23,42,0.7)] backdrop-blur-xl`}>
+                <div className={`flex items-center justify-between px-5 py-3 border-b ${BORDER_ACCENT}`}>
+                  <div>
+                    <h3 className="text-lg font-semibold text-slate-100">
+                      Clinical Interaction Station — ECG &amp; Auscultazione
+                    </h3>
+                    <p className="text-[11px] text-slate-400">
+                      Ambiente dedicato per posizionare correttamente gli elettrodi dell&apos;ECG e auscultare cuore e polmoni.
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setShowClinicalStationModal(false)}
+                    className="text-slate-400 hover:text-cyan-400 transition-colors"
+                  >
+                    <X className="h-6 w-6" />
+                  </button>
+                </div>
+
+                <div className="px-5 py-4 grid grid-cols-1 lg:grid-cols-2 gap-4 max-h-[75vh] overflow-y-auto custom-scrollbar">
+                  {/* Colonna sinistra: mappa anatomica interattiva */}
+                  <div className="space-y-3">
+                    <div className="rounded-2xl border border-slate-700/60 bg-gradient-to-b from-slate-950/90 via-slate-950 to-black/95 p-3 shadow-inner">
+                      <p className="text-[11px] font-semibold text-slate-300 mb-2 uppercase tracking-wide">
+                        Auscultazione cuore e polmoni
+                      </p>
+                      <div className="flex items-center justify-between gap-2 mb-1">
+                        <p className="text-[10px] text-slate-400">
+                          Clicca sui focolai per avviare l&apos;auscultazione audio.
+                        </p>
+                        <button
+                          type="button"
+                          onClick={stopAllAuscultation}
+                          className="inline-flex items-center gap-1 rounded-full border border-slate-700/70 bg-slate-900/80 px-2.5 py-1 text-[10px] font-medium text-slate-200 hover:border-cyan-500/70 hover:text-cyan-200 transition-colors"
+                        >
+                          <Minimize2 className="h-3 w-3" />
+                          <span>Stop / Pausa</span>
+                        </button>
+                      </div>
+                      <AnatomicalMap
+                        activeCase={activeCase}
+                        examinedHotspots={examinedHotspots}
+                        onHotspotExamined={handleAnatomicalHotspotExamined}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Colonna destra: modulo interattivo ECG + riepilogo */}
+                  <div className="space-y-4">
+                    <div className="rounded-2xl border border-slate-700/60 bg-[#020617]/95 p-3">
+                      <p className="text-[11px] font-semibold text-slate-300 mb-2 uppercase tracking-wide">
+                        Modulo Interattivo ECG — Posizionamento derivazioni precordiali
+                      </p>
+                      <div className="flex items-center justify-between gap-3 mb-2">
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] text-slate-400">
+                            Volume ambiente esame obiettivo
+                          </span>
+                          <input
+                            type="range"
+                            min={0}
+                            max={100}
+                            value={Math.round(clinicalAudioVolume * 100)}
+                            onChange={(e) => setClinicalAudioVolume(Number(e.target.value) / 100)}
+                            className="w-32 accent-cyan-400"
+                          />
+                        </div>
+                        <button
+                          type="button"
+                          onClick={stopAllAuscultation}
+                          className="inline-flex items-center gap-1 rounded-full border border-slate-700/70 bg-slate-900/80 px-2.5 py-1 text-[10px] font-medium text-slate-200 hover:border-cyan-500/70 hover:text-cyan-200 transition-colors"
+                        >
+                          <Minimize2 className="h-3 w-3" />
+                          <span>Stop / Pausa auscultazione</span>
+                        </button>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {/* Slot sul torace */}
+                        <div className="relative rounded-2xl bg-gradient-to-b from-slate-900 via-slate-950 to-black border border-slate-700/70 p-3">
+                          <div className="relative aspect-[3/4] w-full rounded-2xl bg-gradient-to-b from-slate-900 via-slate-950 to-black border border-slate-800 overflow-hidden">
+                            <div className="absolute inset-0 opacity-80">
+                              <svg viewBox="0 0 300 400" className="w-full h-full">
+                                <defs>
+                                  <radialGradient id="torsoGradientModal" cx="50%" cy="20%" r="70%">
+                                    <stop offset="0%" stopColor="#1f2937" />
+                                    <stop offset="40%" stopColor="#020617" />
+                                    <stop offset="100%" stopColor="#000000" />
+                                  </radialGradient>
+                                </defs>
+                                <path
+                                  d="M150 40 C 115 40 85 65 80 105 C 75 145 70 210 80 270 C 90 330 115 360 150 360 C 185 360 210 330 220 270 C 230 210 225 145 220 105 C 215 65 185 40 150 40 Z"
+                                  fill="url(#torsoGradientModal)"
+                                  stroke="#1e293b"
+                                  strokeWidth="2"
+                                />
+                                <line
+                                  x1="150"
+                                  y1="80"
+                                  x2="150"
+                                  y2="260"
+                                  stroke="#0f172a"
+                                  strokeWidth="3"
+                                  strokeLinecap="round"
+                                />
+                                <path
+                                  d="M120 80 C 130 70 140 65 150 65 C 160 65 170 70 180 80"
+                                  stroke="#0f172a"
+                                  strokeWidth="3"
+                                  fill="none"
+                                />
+                              </svg>
+                            </div>
+
+                            {/* Slot V1-V6 */}
+                            <div className="absolute inset-0">
+                              {[
+                                { id: "slotV1", label: "V1", top: "36%", left: "38%" },
+                                { id: "slotV2", label: "V2", top: "36%", left: "46%" },
+                                { id: "slotV3", label: "V3", top: "43%", left: "50%" },
+                                { id: "slotV4", label: "V4", top: "45%", left: "58%" },
+                                { id: "slotV5", label: "V5", top: "48%", left: "64%" },
+                                { id: "slotV6", label: "V6", top: "48%", left: "70%" },
+                              ].map((slot) => {
+                                const assigned = ecgLeadAssignments[slot.id as keyof typeof ecgLeadAssignments];
+                                const isCorrect = assigned === slot.label;
+                                const isFilled = Boolean(assigned);
+                                return (
+                                  <div
+                                    key={slot.id}
+                                    className="absolute -translate-x-1/2 -translate-y-1/2"
+                                    style={{ top: slot.top, left: slot.left }}
+                                    onDragOver={handleEcgAllowDrop}
+                                    onDrop={(e) => handleEcgDropOnSlot(e, slot.id)}
+                                  >
+                                    <div
+                                      className={`flex h-9 w-9 items-center justify-center rounded-full border text-[11px] font-semibold shadow-sm transition-colors ${
+                                        isFilled
+                                          ? isCorrect
+                                            ? "bg-emerald-500/90 border-emerald-300 text-slate-950"
+                                            : "bg-red-500/85 border-red-300 text-slate-950"
+                                          : "bg-slate-900/80 border-slate-600/70 text-slate-400"
+                                      }`}
+                                    >
+                                      {assigned || slot.label}
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                          <p className="mt-2 text-[10px] text-slate-400">
+                            Trascina le margherite V1–V6 negli slot corrispondenti sui reperi anatomici.
+                            Posizionamento scorretto o incompleto genererà un ECG tecnicamente povero.
+                          </p>
+                        </div>
+
+                        {/* Palette margherite */}
+                        <div className="flex flex-col gap-2">
+                          <p className="text-[11px] font-medium text-slate-300">
+                            Margherite ECG disponibili
+                          </p>
+                          <div className="flex flex-wrap gap-2">
+                            {["V1", "V2", "V3", "V4", "V5", "V6"].map((lead) => (
+                              <div
+                                key={lead}
+                                draggable
+                                onDragStart={(e) => handleEcgDragStart(e, lead)}
+                                className="flex h-9 w-9 cursor-move items-center justify-center rounded-full border border-cyan-400/70 bg-cyan-500/90 text-[11px] font-semibold text-slate-950 shadow-[0_0_10px_rgba(34,211,238,0.6)]"
+                                title={`Trascina per posizionare ${lead}`}
+                              >
+                                {lead}
+                              </div>
+                            ))}
+                          </div>
+                          <div className="mt-2 rounded-xl bg-slate-900/80 border border-slate-700/70 px-3 py-2">
+                            <p className="text-[11px] text-slate-300 font-semibold mb-1">
+                              Stato posizionamento ECG
+                            </p>
+                            <p className="text-[11px] text-slate-400">
+                              {ecgPlacementQuality === "not_done" && "In attesa di posizionamento delle derivazioni precordiali."}
+                              {ecgPlacementQuality === "correct" && "Posizionamento coerente con IV spazio intercostale parasternale (V1–V2) e V spazio emiclaveare (V4): ECG tecnicamente adeguato."}
+                              {ecgPlacementQuality === "technically_poor" && "Posizionamento incompleto o incongruo: l'ECG generato sarà tecnicamente povero e verrà segnalato nel report finale."}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between gap-3 pt-1">
+                      <p className="text-[11px] text-slate-400">
+                        Il reperto verrà salvato nella cartella clinica della sessione e considerato nel calcolo dell&apos;OmniScore (Legge Gelli-Bianco).
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const allAssigned = Object.values(ecgLeadAssignments).every((v) => v);
+                          const isPerfect =
+                            ecgLeadAssignments.slotV1 === "V1" &&
+                            ecgLeadAssignments.slotV2 === "V2" &&
+                            ecgLeadAssignments.slotV3 === "V3" &&
+                            ecgLeadAssignments.slotV4 === "V4" &&
+                            ecgLeadAssignments.slotV5 === "V5" &&
+                            ecgLeadAssignments.slotV6 === "V6";
+
+                          const quality: typeof ecgPlacementQuality =
+                            !allAssigned ? "technically_poor" : isPerfect ? "correct" : "technically_poor";
+
+                          setEcgPlacementQuality(quality);
+
+                          // Audio di interferenza se posizionamento scorretto / incompleto
+                          if (ecgInterferenceAudioRef.current) {
+                            if (quality === "technically_poor") {
+                              ecgInterferenceAudioRef.current.currentTime = 0;
+                              ecgInterferenceAudioRef.current
+                                .play()
+                                .catch(() => {});
+                            } else {
+                              ecgInterferenceAudioRef.current.pause();
+                              ecgInterferenceAudioRef.current.currentTime = 0;
+                            }
+                          }
+
+                          const summaryLines: string[] = [];
+                          const cardiacHotspots = ["aortic", "pulmonic", "tricuspid", "mitral"];
+                          const lungHotspots = [
+                            "lung-apex-right",
+                            "lung-apex-left",
+                            "lung-base-right",
+                            "lung-base-left",
+                            "lung-axillary-right",
+                            "lung-axillary-left",
+                          ];
+
+                          const hasAnyCardiac = cardiacHotspots.some((id) => examinedHotspots.has(id));
+                          const hasAnyLung = lungHotspots.some((id) => examinedHotspots.has(id));
+
+                          summaryLines.push(
+                            hasAnyCardiac
+                              ? "- Auscultazione cardiaca eseguita sui principali focolai (aortico, polmonare, tricuspide, mitrale)."
+                              : "- Auscultazione cardiaca non documentata sui focolai principali."
+                          );
+
+                          summaryLines.push(
+                            hasAnyLung
+                              ? "- Auscultazione dei campi polmonari (apici, basi, linee ascellari) eseguita."
+                              : "- Auscultazione dei campi polmonari non completa o non documentata."
+                          );
+
+                          if (quality === "correct") {
+                            summaryLines.push(
+                              "- Posizionamento derivazioni precordiali ECG V1–V6 corretto sui reperi toracici standard: tracciato tecnicamente adeguato."
+                            );
+                          } else if (quality === "technically_poor") {
+                            summaryLines.push(
+                              "- Posizionamento derivazioni precordiali ECG incompleto o scorretto: tracciato potenzialmente distorto / tecnicamente povero."
+                            );
+                          } else {
+                            summaryLines.push(
+                              "- Posizionamento derivazioni precordiali ECG non eseguito nella stazione interattiva."
+                            );
+                          }
+
+                          const resultText = summaryLines.join("\n");
+
+                          setExamResults((prev) => {
+                            const withoutOld = prev.filter(
+                              (r) => r.name !== "Esame Obiettivo Torace / Clinical Interaction Station"
+                            );
+                            return [
+                              ...withoutOld,
+                              {
+                                name: "Esame Obiettivo Torace / Clinical Interaction Station",
+                                result: resultText,
+                              },
+                            ];
+                          });
+
+                          setMessages((prev) => [
+                            ...prev,
+                            {
+                              id: Date.now(),
+                              role: "doctor",
+                              content:
+                                "Conferma esame obiettivo torace: auscultazione cuore/polmoni ed esecuzione ECG con posizionamento documentato nella Clinical Interaction Station.",
+                              timestamp: formatTime(),
+                            },
+                          ]);
+
+                          setShowClinicalStationModal(false);
+                        }}
+                        className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-emerald-500/90 to-cyan-500/90 px-4 py-2 text-[12px] font-semibold text-slate-950 shadow-[0_0_18px_rgba(16,185,129,0.5)] hover:shadow-[0_0_22px_rgba(16,185,129,0.7)] transition-all"
+                      >
+                        <CheckCircle2 className="h-4 w-4" />
+                        Conferma Esame
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
